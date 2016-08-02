@@ -14,82 +14,31 @@ idcsv <- read.csv("allsamples_ID.csv", stringsAsFactors = F)
 
 # Add metadata ------------------------------------------------------------
 
-# googlesheets::gs_auth(new_user = TRUE) # run this if having authorization problems
-mykey <- '1Rf_dFJ5WK-vTTsIT_kHHOcFrKzQtMFtKiuXiFw1lh9Y' # for Sample_Data file
-lab <- googlesheets::gs_key(mykey)
+# Connect to database -----------------------------------------------------
 
-### WAIT ###
+library(RMySQL)
+leyte <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Leyte", port=3306)
+labor <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
 
-lig <- googlesheets::gs_read(lab, ws="Ligations")
-dig <- googlesheets::gs_read(lab, ws='Digests')
-extr <- googlesheets::gs_read(lab, ws="Extractions")
-sample <- googlesheets::gs_read(lab, ws="Samples")
 
-# create a table for the First half of the match
-lig1 <- lig
-names(lig1) <- paste('First.', names(lig1), sep='')
+# add lab IDs
 
-# merge the two dataframes so that lig IDs match up
-match <- merge(idcsv, lig1[,c('First.Ligation_ID', 'First.Digest_ID')], by.x = "First.ID", by.y = "First.Ligation_ID", all.x = T)
+lab <- dbSendQuery(labor, "select ligations.`ligation_ID`, digests.digest_ID, extractions.extraction_ID, extractions.Sample_ID from extractions 
+  join digests on extractions.extraction_ID = digests.extraction_ID
+  join ligations on digests.digest_ID = ligations.digest_ID;")
+lab <- fetch(lab, n=-1)
 
-# create a table for the Second half of the match
-lig2 <- lig
-names(lig2) <- paste('Second.', names(lig2), sep='')
+# For First.IDs
+lab1 <- lab
+names(lab1) <- paste("First.", names(lab1), sep = "")
 
-# merge the two dataframes so that lig IDs match up
-match <- merge(match, lig2[,c('Second.Ligation_ID', 'Second.Digest_ID')], by.x = "Second.ID", by.y = "Second.Ligation_ID", all.x = T)
+idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_ID", all.x = T)
 
-# clean up
-rm(lig, lig1, lig2)
+# For Second.IDs
+lab2 <- lab
+names(lab2) <- paste("Second.", names(lab2), sep = "")
 
-# create a table for the First half of the match
-dig1 <- dig
-names(dig1) <- paste('First.', names(dig1), sep='')
-
-# merge the two dataframes so that dig IDs match up
-match <- merge(match, dig1[,c('First.Digest', 'First.Extraction_ID')], by.x = "First.Digest_ID", by.y = "First.Digest", all.x = T)
-
-# create a table for the Second half of the match
-dig2 <- dig
-names(dig2) <- paste('Second.', names(dig2), sep='')
-
-# merge the two dataframes so that dig IDs match up
-match <- merge(match, dig2[,c('Second.Digest', 'Second.Extraction_ID')], by.x = "Second.Digest_ID", by.y = "Second.Digest", all.x = T)
-
-# clean up
-rm(dig, dig1, dig2)
-
-# create a table for the First half of the match
-extr1 <- extr
-names(extr1) <- paste('First.', names(extr1), sep='')
-
-# merge the two dataframes so that dig IDs match up
-match <- merge(match, extr1[,c('First.Extract', 'First.Sample_ID')], by.x = "First.Extraction_ID", by.y = "First.Extract", all.x = T)
-
-# create a table for the Second half of the match
-extr2 <- extr
-names(extr2) <- paste('Second.', names(extr2), sep='')
-
-# merge the two dataframes so that dig IDs match up
-match <- merge(match, extr2[,c('Second.Extract', 'Second.Sample_ID')], by.x = "Second.Extraction_ID", by.y = "Second.Extract", all.x = T)
-
-# clean up
-rm(extr, extr1, extr2)
-
-# add field data
-sample1 <- sample
-names(sample1) <- paste('First.', names(sample1), sep='')
-
-match <- merge(match, sample1[,c("First.Sample_ID", "First.Lat", "First.Lon", "First.Date", "First.Size")], by.x = "First.Sample_ID", by.y = "First.Sample_ID", all.x = T)
-
-# add field data for second half of match
-sample2 <- sample
-names(sample2) <- paste('Second.', names(sample2), sep='')
-
-match <- merge(match, sample2[,c("Second.Sample_ID", "Second.Lat", "Second.Lon", "Second.Date", "Second.Size")], by.x = "Second.Sample_ID", by.y = "Second.Sample_ID", all.x = T)
-
-# clean up 
-rm (sample2, sample1, sample)
+idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_ID", all.x = T)
 
 
 # Flag matches with same date of capture ----------------------------------
