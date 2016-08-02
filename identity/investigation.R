@@ -1,8 +1,41 @@
 # 7/27/2016 (MRS) - A script to examine all samples (no regenos or recaps have been removed from the genepop) to check for lab errors.  Uses the match table generated in identity_analysis.R
 
-# strip ligation ID out of the idcsv allsamples_ID.csv
+# Lightning
+setwd('/Users/macair/Documents/Philippines/Genetics/identity')
+source("../readGenepop_space.R")
+
+# Import cervus identity results ------------------------------------------
+
+idcsv <- read.csv("allsamples_ID.csv", stringsAsFactors = F)
+
+
+# strip down to just ligation numbers -------------------------------------
+
 idcsv$First.ID <- substr(idcsv$First.ID,11,15)
 idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
+
+# Connect to database -----------------------------------------------------
+
+library(RMySQL)
+leyte <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Leyte", port=3306)
+labor <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
+
+
+# add lab IDs
+
+lab <- dbSendQuery(labor, "select ligations.`ligation_ID`, digests.digest_ID, extractions.extraction_ID, extractions.Sample_ID from extractions 
+join digests on extractions.extraction_ID = digests.extraction_ID
+  join ligations on digests.digest_ID = ligations.digest_ID;")
+lab <- fetch(lab, n=-1)
+
+# For First.IDs
+lab1 <- lab
+names(lab1) <- paste("First.", names(lab1), sep = "")
+
+
+
+
+
 
 # create a table that can be imported to update notes about samples that are not recaptures
 
