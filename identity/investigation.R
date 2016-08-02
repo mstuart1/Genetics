@@ -32,7 +32,13 @@ lab <- fetch(lab, n=-1)
 lab1 <- lab
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
+idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_ID", all.x = T)
 
+# For Second.IDs
+lab2 <- lab
+names(lab2) <- paste("Second.", names(lab2), sep = "")
+
+idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_ID", all.x = T)
 
 
 
