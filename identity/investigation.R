@@ -193,6 +193,16 @@ out$Issue <- "date, distance, or size issue found during id analysis"
 
 dbWriteTable(leyte, "known_issues", out, row.names = F, append = T)
 
+dbSendQuery(leyte, "CREATE TABLE temp (
+  Ligation_ID VARCHAR(5) NOT NULL,
+  Issue text(140)
+);")
+
+dbSendQuery(leyte, "insert into temp select distinct Ligation_ID, Issue from known_issues;")
+
+dbSendQuery(leyte, "DROP TABLE known_issues;")
+dbSendQuery(leyte, "RENAME TABLE temp TO known_issues;")
+
 dbDisconnect(leyte)
 dbDisconnect(labor)
 
