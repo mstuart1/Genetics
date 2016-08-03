@@ -180,40 +180,56 @@ issues <- idcsv[which(!is.na(idcsv$disteval) | !is.na(idcsv$date_eval) | !is.na(
 # Make a list of all the samples with no issues --------------------------
 matches <- idcsv[which(is.na(idcsv$disteval) & is.na(idcsv$date_eval) & is.na(idcsv$size_eval)), ]
 
+# Write out a list of known issues ligations IDs to add to the known issues list
 
-
-# create a table that can be imported to update notes about samples that are not recaptures
-
-examine <- match[which(match$date_eval == "FAIL"), ]
-
-
-# Take a look at the remaining samples in the examine table and write notes in evernote about why they are there - remember so far these are only samples that raise a red flag because of the date of capture
-
-x <- examine[,c("First.Sample_ID", "First.ID")]
-x <- examine[,c("Second.Sample_ID", "Second.ID")]
-
-# make a list that can be imported into a known issues table
-
-# split the data
-
-out <- subset(examine, select = c(First.ID))
+out <- subset(issues, select = c(First.ID))
 names(out) <- c("Ligation_ID")
 
-x <- subset(examine, select = c(Second.ID))
+x <- subset(issues, select = c(Second.ID))
 names(x) <- names(out)
 
 out <- rbind(out, x)
+out$Issue <- "date, distance, or size issue found during id analysis"
 
-out <- unique(out$Ligation_ID)
+dbWriteTable(leyte, "known_issues", out, row.names = F, append = T)
 
-# write a list of known issue ligations
-write.table(out, file = "knownIssueLigations.txt", row.names = F, col.names = F)
+dbDisconnect(leyte)
+dbDisconnect(labor)
 
-# Now take a look at failed distance evals
-examine <- rbind(examine, match[which(match$disteval == "FAIL"), ])
+rm(leyte, labor)
 
-# create a table of samples that are too far apart
-distance <- examine[which(examine$disteval == "FAIL"), ]
-
-# reorder the columns - move columns
-dist2 <- distance[ , c(2,8,1,7,6,5,4,3)]
+# # create a table that can be imported to update notes about samples that are not recaptures
+# 
+# examine <- match[which(match$date_eval == "FAIL"), ]
+# 
+# 
+# # Take a look at the remaining samples in the examine table and write notes in evernote about why they are there - remember so far these are only samples that raise a red flag because of the date of capture
+# 
+# x <- examine[,c("First.Sample_ID", "First.ID")]
+# x <- examine[,c("Second.Sample_ID", "Second.ID")]
+# 
+# # make a list that can be imported into a known issues table
+# 
+# # split the data
+# 
+# out <- subset(examine, select = c(First.ID))
+# names(out) <- c("Ligation_ID")
+# 
+# x <- subset(examine, select = c(Second.ID))
+# names(x) <- names(out)
+# 
+# out <- rbind(out, x)
+# 
+# out <- unique(out$Ligation_ID)
+# 
+# # write a list of known issue ligations
+# write.table(out, file = "knownIssueLigations.txt", row.names = F, col.names = F)
+# 
+# # Now take a look at failed distance evals
+# examine <- rbind(examine, match[which(match$disteval == "FAIL"), ])
+# 
+# # create a table of samples that are too far apart
+# distance <- examine[which(examine$disteval == "FAIL"), ]
+# 
+# # reorder the columns - move columns
+# dist2 <- distance[ , c(2,8,1,7,6,5,4,3)]
