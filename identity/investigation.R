@@ -16,15 +16,27 @@ idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
 
 # Connect to database and add lab data -----------------------------------------------------
 
-library(RMySQL)
-labor <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
+# Connect to database using dplyr
+suppressMessages(library(dplyr))
+labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 
-# add lab data
-lab <- dbSendQuery(labor, "select ligations.`ligation_ID`, digests.digest_ID, extractions.extraction_ID, extractions.Sample_ID from extractions 
-join digests on extractions.extraction_ID = digests.extraction_ID
-  join ligations on digests.digest_ID = ligations.digest_ID;")
-lab <- fetch(lab, n=-1)
+# library(RMySQL)
+# labor <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
+
+c1 <- labor %>% tbl("extraction") %>% select(extraction_ID, sample_ID)
+c2 <- labor %>% tbl("digest") %>% select(digest_ID, extraction_ID)
+c3 <- left_join(c2, c1, by = "extraction_ID")
+c4 <- labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID)
+c5 <- data.frame(left_join(c4, c3, by = "digest_ID"))
+
+
+
+# # add lab data
+# lab <- dbSendQuery(labor, "select ligations.`ligation_ID`, digests.digest_ID, extractions.extraction_ID, extractions.Sample_ID from extractions 
+# join digests on extractions.extraction_ID = digests.extraction_ID
+#   join ligations on digests.digest_ID = ligations.digest_ID;")
+# lab <- fetch(lab, n=-1)
 
 # For First.IDs
 lab1 <- lab
