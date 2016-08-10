@@ -2,11 +2,11 @@
 
 # Lightning
 # setwd('/Users/macair/Documents/Philippines/Genetics/identity')
-source("../readGenepop_space.R")
+source("readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
 
-idcsv <- read.csv("allsamples_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
 
 
 # strip down to just ligation numbers -------------------------------------
