@@ -14,6 +14,10 @@ idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
 idcsv$First.ID <- substr(idcsv$First.ID,11,15)
 idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
 
+# remove samples that are known
+idcsv <- idcsv[idcsv$First.ID != "L2364", ] # no field data for this fish
+idcsv <- idcsv[idcsv$Second.ID != "L0465", ] # no field data for this fish
+
 # Connect to database and add lab data -----------------------------------------------------
 
 # Connect to database using dplyr
@@ -30,62 +34,51 @@ c3 <- left_join(c2, c1, by = "extraction_ID")
 c4 <- labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID)
 c5 <- data.frame(left_join(c4, c3, by = "digest_ID"))
 
+# for First.IDs 
+lab1 <- c5
+names(lab1) <- paste("First.", names(lab1), sep = "")
 
-
-# # add lab data
-# lab <- dbSendQuery(labor, "select ligations.`ligation_ID`, digests.digest_ID, extractions.extraction_ID, extractions.Sample_ID from extractions 
-# join digests on extractions.extraction_ID = digests.extraction_ID
-#   join ligations on digests.digest_ID = ligations.digest_ID;")
-# lab <- fetch(lab, n=-1)
-
-# For First.IDs
-lab1 <- lab
+# # For First.IDs
+ lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
 idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_ID", all.x = T)
 
 # For Second.IDs
-lab2 <- lab
+lab2 <- c5
 names(lab2) <- paste("Second.", names(lab2), sep = "")
 
 idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_ID", all.x = T)
 
 
 # Add field data ----------------------------------------------------------
-leyte <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Leyte", port=3306)
-
-# add date of capture
-field <- dbSendQuery(leyte, "select clownfish.Sample_ID as Sample_ID, 
-diveinfo.Date as Date, anemones.ObsTime as time, clownfish.Size as size
-  from clownfish 
-  join anemones on clownfish.anem_table_id = anemones.anem_table_id
-  join diveinfo on anemones.dive_table_id = diveinfo.id;;")
-field <- fetch(field, n=-1)
-
-# For First.IDs
-field1 <- field
-names(field1) <- paste("First.", names(field1), sep = "")
-
-idcsv <- merge(idcsv, field1, by.x = "First.Sample_ID", by.y = "First.Sample_ID", all.x = T)
-
-# For Second.IDs
-field2 <- field
-names(field2) <- paste("Second.", names(field2), sep = "")
-
-idcsv <- merge(idcsv, field2, by.x = "Second.Sample_ID", by.y = "Second.Sample_ID", all.x = T)
+leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 
-latlong <- dbReadTable(leyte, "GPX")
+c1 <- leyte %>% tbl("diveinfo") %>% select(id, Date, Name)
+c2 <- leyte %>% tbl("anemones") %>% select(dive_table_id, anem_table_id, ObsTime)
+c3 <- left_join(c2, c1, by = c("dive_table_id" = "id"))
+# c4 <- leyte %>% tbl("clownfish") %>% select(fish_table_id, anem_table_id, Sample_ID, Size) 
+c4 <- tbl(leyte, sql("SELECT fish_table_id, anem_table_id, Sample_ID, Size FROM clownfish where Sample_ID is not NULL"))
+first <- data.frame(left_join(c4, c3, by = "anem_table_id"))
+second <- data.frame(left_join(c4, c3, by = "anem_table_id"))
+names(first) <- paste("First.", names(first), sep = "")
+names(second) <- paste("Second.", names(second), sep = "")
+idcsv <- left_join(idcsv, first, by = c("First.sample_ID" = "First.Sample_ID"))
+idcsv <- left_join(idcsv, second, by = c("Second.sample_ID" = "Second.Sample_ID"))
 
+latlong <- data.frame(leyte %>% tbl("GPX"), n = -1)
+# latlong <- leyte %>% tbl("GPX")
 
 # Add lat long for first.id -----------------------------------------------
 for(i in 1:nrow(idcsv)){
   #Get date and time information for the anemone
   date <- as.character(idcsv$First.Date[i])
   datesplit <- strsplit(date,"-", fixed = T)[[1]]
+  year <- as.numeric(datesplit[1])
   month <- as.numeric(datesplit[2])
   day <- as.numeric(datesplit[3])
-  time <- as.character(idcsv$First.time[i])
+  time <- as.character(idcsv$First.ObsTime[i])
   timesplit <- strsplit(time, ":", fixed = T)[[1]]
   hour <- as.numeric(timesplit[1])
   min <- as.numeric(timesplit[2])
@@ -97,10 +90,10 @@ for(i in 1:nrow(idcsv)){
     day <- day-1
     hour <- hour + 24
   }
-
-# Find the location records that match the date/time stamp (to nearest second)
-latlongindex <- which(latlong$month == month & latlong$day == day & latlong$hour == hour & latlong$min == min)
-i2 <- which.min(abs(latlong$sec[latlongindex] - sec))
+  
+  # Find the location records that match the date/time stamp (to nearest second)
+  latlongindex <- which(latlong$year == year & latlong$month == month & latlong$day == day & latlong$hour == hour & latlong$min == min)
+  i2 <- which.min(abs(latlong$sec[latlongindex] - sec))
 
 # Calculate the lat/long for this time
 if(length(i2)>0){
@@ -115,9 +108,10 @@ for(i in 1:nrow(idcsv)){
   #Get date and time information for the anemone
   date <- as.character(idcsv$Second.Date[i])
   datesplit <- strsplit(date,"-", fixed = T)[[1]]
+  year <- as.numeric(datesplit[1])
   month <- as.numeric(datesplit[2])
   day <- as.numeric(datesplit[3])
-  time <- as.character(idcsv$Second.time[i])
+  time <- as.character(idcsv$Second.ObsTime[i])
   timesplit <- strsplit(time, ":", fixed = T)[[1]]
   hour <- as.numeric(timesplit[1])
   min <- as.numeric(timesplit[2])
@@ -131,7 +125,7 @@ for(i in 1:nrow(idcsv)){
   }
   
   # Find the location records that match the date/time stamp (to nearest second)
-  latlongindex <- which(latlong$month == month & latlong$day == day & latlong$hour == hour & latlong$min == min)
+  latlongindex <- which(latlong$year == year & latlong$month == month & latlong$day == day & latlong$hour == hour & latlong$min == min)
   i2 <- which.min(abs(latlong$sec[latlongindex] - sec))
   
   # Calculate the lat/long for this time
@@ -179,10 +173,10 @@ for (i in 1:nrow(idcsv)){
 
 
 # Create a list of regenotyped samples -----------------------------------
-regeno <- idcsv[which(idcsv$Second.Sample_ID == idcsv$First.Sample_ID), ]
+regeno <- idcsv[which(idcsv$Second.sample_ID == idcsv$First.sample_ID), ]
 
 # Remove the regenotypes from the analysis
-idcsv <- idcsv[which(idcsv$Second.Sample_ID != idcsv$First.Sample_ID), ]
+idcsv <- idcsv[which(idcsv$Second.sample_ID != idcsv$First.sample_ID), ]
 
 
 # Make a list of all of the samples that fail for some reason ------------
