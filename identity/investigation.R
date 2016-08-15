@@ -188,14 +188,14 @@ matches <- idcsv[which(is.na(idcsv$disteval) & is.na(idcsv$date_eval) & is.na(id
 
 # Write out a list of known issues ligations IDs to add to the known issues list
 
-out <- subset(issues, select = c(First.ID))
-names(out) <- c("Ligation_ID")
+out <- subset(issues, select = c(First.ID, First.extraction_ID))
+names(out) <- c("Ligation_ID", "Extraction_ID")
 
-x <- subset(issues, select = c(Second.ID))
+x <- subset(issues, select = c(Second.ID, Second.extraction_ID))
 names(x) <- names(out)
 
 out <- rbind(out, x)
-out$Issue <- "date, distance, or size issue found during id analysis"
+# out$Issue <- "date, distance, or size issue found during id analysis"
 
 dbWriteTable(leyte, "known_issues", out, row.names = F, append = T)
 
