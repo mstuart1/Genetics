@@ -8,9 +8,8 @@
 # source('/Users/michelle/Google Drive/Pinsky Lab/Cervus/Michelle\'s R codes/Genetics/code/readGenepop_space.R')
 
 # Lightning
-setwd("~/Documents/Philippines/Genetics/")
+# setwd("~/Documents/Philippines/Genetics/")
 source("readGenepop_space.R")
-# source("code/old/Genetics/src/writeGenepop.R")
 
 
 # Strip down to Ligation ID  - double check genepop to make sur --------
