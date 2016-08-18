@@ -73,6 +73,7 @@ setdiff(genedf$names, largedf$names) # should be character(0)
 # to remove samples with known issues, pull the data from the known issues database
 
 # Connect to the database
+library(RMySQL)
 leyte <- DBI::dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Leyte", port=3306)
 
 # See a list of tables in the database
