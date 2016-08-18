@@ -1,32 +1,34 @@
 # 7/27/2016 (MRS) - A script to examine all samples (no regenos or recaps have been removed from the genepop) to check for lab errors.  Uses the match table generated in identity_analysis.R
 
 # Lightning
-# setwd('/Users/macair/Documents/Philippines/Genetics/identity')
+# setwd("/Users/macair/Documents/Philippines/Genetics/")
 source("readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
 
-idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
+
+### WAIT ###
+
+# # strip down to just ligation numbers -------------------------------------
+# 
+# idcsv$First.ID <- substr(idcsv$First.ID,11,15)
+# idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
+# 
+# # remove samples that are known
+# idcsv <- idcsv[idcsv$First.ID != "L2364", ] # no field data for this fish
+# idcsv <- idcsv[idcsv$Second.ID != "L0465", ] # no field data for this fish
+
+# for the 8/18/2016 file, remove the non-matches
+idcsv <- idcsv[idcsv$Status != "Excluded", ]
+idcsv <- idcsv[idcsv$Status != "Not enough loci", ]
 
 
-# strip down to just ligation numbers -------------------------------------
-
-idcsv$First.ID <- substr(idcsv$First.ID,11,15)
-idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
-
-# remove samples that are known
-idcsv <- idcsv[idcsv$First.ID != "L2364", ] # no field data for this fish
-idcsv <- idcsv[idcsv$Second.ID != "L0465", ] # no field data for this fish
-
-# Connect to database and add lab data -----------------------------------------------------
+# Connect to database and add lab data ------------------------------------
 
 # Connect to database using dplyr
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
-
-
-# library(RMySQL)
-# labor <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Laboratory", port=3306)
 
 c1 <- labor %>% tbl("extraction") %>% select(extraction_ID, sample_ID)
 c2 <- labor %>% tbl("digest") %>% select(digest_ID, extraction_ID)
@@ -38,7 +40,6 @@ c5 <- data.frame(left_join(c4, c3, by = "digest_ID"))
 lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
-
 idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_ID", all.x = T)
 
 # For Second.IDs
@@ -47,10 +48,8 @@ names(lab2) <- paste("Second.", names(lab2), sep = "")
 
 idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_ID", all.x = T)
 
-
 # Add field data ----------------------------------------------------------
 leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
-
 
 c1 <- leyte %>% tbl("diveinfo") %>% select(id, Date, Name)
 c2 <- leyte %>% tbl("anemones") %>% select(dive_table_id, anem_table_id, ObsTime)
@@ -58,7 +57,13 @@ c3 <- left_join(c2, c1, by = c("dive_table_id" = "id"))
 # c4 <- leyte %>% tbl("clownfish") %>% select(fish_table_id, anem_table_id, Sample_ID, Size) 
 c4 <- tbl(leyte, sql("SELECT fish_table_id, anem_table_id, Sample_ID, Size FROM clownfish where Sample_ID is not NULL"))
 first <- data.frame(left_join(c4, c3, by = "anem_table_id"))
+
+### WAIT ###
+
 second <- data.frame(left_join(c4, c3, by = "anem_table_id"))
+
+### WAIT ###
+
 names(first) <- paste("First.", names(first), sep = "")
 names(second) <- paste("Second.", names(second), sep = "")
 idcsv <- left_join(idcsv, first, by = c("First.sample_ID" = "First.Sample_ID"))
@@ -166,7 +171,7 @@ for(i in 1:nrow(idcsv)){
 idcsv$size_eval <- NA
 for (i in 1:nrow(idcsv)){
   if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] < idcsv$Second.Date[i]) {
-    if(!is.na(idcsv$First.size[i]) & !is.na(idcsv$Second.size[i]) & (idcsv$First.size[i] - 1.5) > idcsv$Second.size[i]){
+    if(!is.na(idcsv$First.Size[i]) & !is.na(idcsv$Second.Size[i]) & (idcsv$First.Size[i] - 1.5) > idcsv$Second.Size[i]){
       idcsv$size_eval[i] <- "FAIL"
     }
   }
