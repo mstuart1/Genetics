@@ -38,9 +38,6 @@ c5 <- data.frame(left_join(c4, c3, by = "digest_ID"))
 lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
-# # For First.IDs
- lab1 <- c5
-names(lab1) <- paste("First.", names(lab1), sep = "")
 
 idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_ID", all.x = T)
 
@@ -69,6 +66,8 @@ idcsv <- left_join(idcsv, second, by = c("Second.sample_ID" = "Second.Sample_ID"
 
 latlong <- data.frame(leyte %>% tbl("GPX"), n = -1)
 # latlong <- leyte %>% tbl("GPX")
+
+### WAIT ###
 
 # Add lat long for first.id -----------------------------------------------
 for(i in 1:nrow(idcsv)){
@@ -102,6 +101,7 @@ if(length(i2)>0){
 }
 }
 
+### WAIT ###
 
 # Add lat long for second.id ----------------------------------------------
 for(i in 1:nrow(idcsv)){
@@ -135,6 +135,7 @@ for(i in 1:nrow(idcsv)){
   }
 }
 
+### WAIT ###
 
 # Check for fish that were caught on the same day -------------------------
 
@@ -185,6 +186,23 @@ issues <- idcsv[which(!is.na(idcsv$disteval) | !is.na(idcsv$date_eval) | !is.na(
 
 # Make a list of all the samples with no issues --------------------------
 matches <- idcsv[which(is.na(idcsv$disteval) & is.na(idcsv$date_eval) & is.na(idcsv$size_eval)), ]
+
+# remove samples that did not have GPS data
+issues <- issues[issues$First.ID != "L2283", ] # no gps data for this fish (2012 fish)
+issues <- issues[issues$First.ID != "L2431", ] # no gps data for this fish (2012 fish)
+issues <- issues[issues$First.ID != "L2292", ] # no gps data for this fish (2012 fish)
+issues <- issues[issues$First.ID != "L1101", ] # no gps data for this fish (2014 fish)
+issues <- issues[issues$First.ID != "L1102", ] # no gps data for this fish (2014 fish)
+
+# remove the fish that was caught twice in the same field season
+issues <- issues[issues$First.ID != "L1084", ] # regenotype
+
+
+
+
+
+
+###########################################################################
 
 # Write out a list of known issues ligations IDs to add to the known issues list
 
