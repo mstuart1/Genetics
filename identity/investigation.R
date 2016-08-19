@@ -181,6 +181,9 @@ for (i in 1:nrow(idcsv)){
 # Create a list of regenotyped samples -----------------------------------
 regeno <- idcsv[which(idcsv$Second.sample_ID == idcsv$First.sample_ID), ]
 
+# create a file of regenotyped samples
+write.csv(regeno, file = paste(Sys.Date(),"regenotyped.csv", sep = ""))
+
 # Remove the regenotypes from the analysis
 idcsv <- idcsv[which(idcsv$Second.sample_ID != idcsv$First.sample_ID), ]
 
@@ -191,6 +194,9 @@ issues <- idcsv[which(!is.na(idcsv$disteval) | !is.na(idcsv$date_eval) | !is.na(
 
 # Make a list of all the samples with no issues --------------------------
 matches <- idcsv[which(is.na(idcsv$disteval) & is.na(idcsv$date_eval) & is.na(idcsv$size_eval)), ]
+
+# write out the matches file
+write.csv(matches, file = paste(Sys.Date(),"matches.csv", sep = ""))
 
 # remove samples that did not have GPS data
 issues <- issues[issues$First.ID != "L2283", ] # no gps data for this fish (2012 fish)
