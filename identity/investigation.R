@@ -10,12 +10,12 @@ idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
 
 ### WAIT ###
 
-# # strip down to just ligation numbers -------------------------------------
+# # strip down to just ligation numbers for the all samples file -------------------------------------
 # 
 # idcsv$First.ID <- substr(idcsv$First.ID,11,15)
 # idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
 # 
-# # remove samples that are known
+# # remove samples that are known for the all samples file
 # idcsv <- idcsv[idcsv$First.ID != "L2364", ] # no field data for this fish
 # idcsv <- idcsv[idcsv$Second.ID != "L0465", ] # no field data for this fish
 
