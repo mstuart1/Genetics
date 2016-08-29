@@ -7,8 +7,8 @@
 # Import cervus identity results ------------------------------------------
 
 # 8/29/2016 - use fixed lat long code, double check all samples
-idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
-# idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
+# idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
 
 ### WAIT ###
 
