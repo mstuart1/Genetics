@@ -4,13 +4,18 @@
 
 # Set up workspace --------------------------------------------------------
 
-# Lightning
-setwd('/Users/macair/Documents/Philippines/Genetics/identity')
-source("../readGenepop_space.R")
+# # Lightning
+# setwd('/Users/macair/Documents/Philippines/Genetics/identity')
+
+source("readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
 
-idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
+# # for the 8/18/2016 file, remove the non-matches
+idcsv <- idcsv[idcsv$Status != "Excluded", ]
+idcsv <- idcsv[idcsv$Status != "Not enough loci", ]
+
 
 ### WAIT ###
 
@@ -44,6 +49,8 @@ lab2 <- c5
 names(lab2) <- paste("Second.", names(lab2), sep = "")
 
 idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_ID", all.x = T)
+
+### WAIT ###
 
 # Add field data ----------------------------------------------------------
 leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
@@ -184,29 +191,10 @@ for (i in 1:nrow(idcsv)){
 }
 
 
-# Adjust for known exceptions ---------------------------------------------
-# These samples will go back onto the match list so the one with the most loci will be kept and the other will be removed
-
-# L0444 or L1626 should've been removed in the regeno phase and wasn't
-p <- which(match$First.ID == "L0444")
-match$date_eval[p] <- NA
-
-# APCL13_131 and APCL13_120 are the same fish caught twice on the same day (L1092, L1084)
-p <- which(match$First.Sample_ID == "APCL13_120")
-match$date_eval[p] <- NA
-
-# L0979 and L0980 both regenotype to match APCL13_651L1725 - L0979 should've been removed at regenotype stage but was mislabeled at the time, ligation sheet has now been corrected
-p <- which(match$First.ID == "L0979")
-match$date_eval[p] <- NA
-
-# L1728 is a regenotype of L0806 - mistake wasn't noted in the spreadsheet and this regenotype was missed earlier - digest sheet (where error occured) has been updated
-p <- which(match$First.ID == "L0806")
-match$date_eval[p] <- NA
-
 
 # Write output ------------------------------------------------------------
 
-write.csv(match, file = paste(Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
+write.csv(idcsv, file = paste(Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
 
 
 # Open genepop ------------------------------------------------------------
