@@ -2,11 +2,13 @@
 
 # Lightning
 # setwd("/Users/macair/Documents/Philippines/Genetics/")
-source("readGenepop_space.R")
+# source("readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
 
-idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
+# 8/29/2016 - use fixed lat long code, double check all samples
+idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
+# idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
 
 ### WAIT ###
 
@@ -69,10 +71,15 @@ names(second) <- paste("Second.", names(second), sep = "")
 idcsv <- left_join(idcsv, first, by = c("First.sample_ID" = "First.Sample_ID"))
 idcsv <- left_join(idcsv, second, by = c("Second.sample_ID" = "Second.Sample_ID"))
 
-latlong <- data.frame(leyte %>% tbl("GPX"), n = -1)
+latlong <- data.frame(leyte %>% tbl("GPX") %>% collect())
 # latlong <- leyte %>% tbl("GPX")
 
 ### WAIT ###
+
+idcsv$First.lat <- NA
+idcsv$First.lon <- NA
+idcsv$Second.lat <- NA
+idcsv$Second.lon <- NA
 
 # Add lat long for first.id -----------------------------------------------
 for(i in 1:nrow(idcsv)){
