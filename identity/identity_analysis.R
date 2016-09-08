@@ -4,40 +4,14 @@
 
 # Set up workspace --------------------------------------------------------
 
-<<<<<<< HEAD
 # Lightning
 # setwd('/Users/macair/Documents/Philippines/Genetics/identity')
 source("code/readGenepop_space.R")
-||||||| merged common ancestors
-# Lightning
-setwd('/Users/macair/Documents/Philippines/Genetics/identity')
-source("../readGenepop_space.R")
-=======
-# # Lightning
-# setwd('/Users/macair/Documents/Philippines/Genetics/identity')
 
-source("readGenepop_space.R")
->>>>>>> f1e79422a31d500e4761ffefeeb12d342066f1c9
 
 # Import cervus identity results ------------------------------------------
+idcsv <- read.csv("identity/20160908_ID.csv", stringsAsFactors = F)
 
-<<<<<<< HEAD
-idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
-
-# for the 8/18/2016 file, remove the non-matches
-idcsv <- idcsv[idcsv$Status != "Excluded", ]
-idcsv <- idcsv[idcsv$Status != "Not enough loci", ]
-||||||| merged common ancestors
-idcsv <- read.csv("2016-08-18_ID.csv", stringsAsFactors = F)
-=======
-idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
-# # for the 8/18/2016 file, remove the non-matches
-idcsv <- idcsv[idcsv$Status != "Excluded", ]
-idcsv <- idcsv[idcsv$Status != "Not enough loci", ]
-
->>>>>>> f1e79422a31d500e4761ffefeeb12d342066f1c9
-
-### WAIT ###
 
 # Add metadata ------------------------------------------------------------
 
@@ -94,26 +68,16 @@ names(second) <- paste("Second.", names(second), sep = "")
 idcsv <- left_join(idcsv, first, by = c("First.sample_ID" = "First.Sample_ID"))
 idcsv <- left_join(idcsv, second, by = c("Second.sample_ID" = "Second.Sample_ID"))
 
-<<<<<<< HEAD
+
 idcsv$First.lat <- NA
 idcsv$First.lon <- NA
 idcsv$Second.lat <- NA
 idcsv$Second.lon <- NA
 
 latlong <- data.frame(leyte %>% tbl("GPX") %>% collect())
-||||||| merged common ancestors
-latlong <- data.frame(leyte %>% tbl("GPX"), n = -1)
-=======
-latlong <- data.frame(leyte %>% tbl("GPX") %>% collect())
->>>>>>> f1e79422a31d500e4761ffefeeb12d342066f1c9
 # latlong <- leyte %>% tbl("GPX")
 
 ### WAIT ###
-
-idcsv$First.lat <- NA
-idcsv$First.lon <- NA
-idcsv$Second.lat <- NA
-idcsv$Second.lon <- NA
 
 # Add lat long for first.id -----------------------------------------------
 for(i in 1:nrow(idcsv)){
@@ -184,7 +148,6 @@ for(i in 1:nrow(idcsv)){
 ### WAIT ###
 
 # Flag matches with same date of capture ----------------------------------
-<<<<<<< HEAD
 idcsv$First.Date <- as.Date(idcsv$First.Date, "%m/%d/%Y")
 idcsv$Second.Date <- as.Date(idcsv$Second.Date, "%m/%d/%Y")
 
@@ -193,21 +156,6 @@ idcsv$date_eval <- NA
 for(i in 1:nrow(idcsv)){
   a <- idcsv$First.Date[i]
   b <- idcsv$Second.Date[i]
-||||||| merged common ancestors
-match$First.Date <- as.Date(match$First.Date, "%m/%d/%Y")
-match$Second.Date <- as.Date(match$Second.Date, "%m/%d/%Y")
-
-
-match$date_eval <- NA
-for(i in 1:nrow(match)){
-  a <- match$First.Date[i]
-  b <- match$Second.Date[i]
-=======
-idcsv$date_eval <- NA
-for(i in 1:nrow(idcsv)){
-  a <- idcsv$First.Date[i]
-  b <- idcsv$Second.Date[i]
->>>>>>> f1e79422a31d500e4761ffefeeb12d342066f1c9
   if (a == b & !is.na(a) & !is.na(b)){
     idcsv$date_eval[i] <- "FAIL"
   }
@@ -219,20 +167,11 @@ for(i in 1:nrow(idcsv)){
 
 # Flag matches that were caught more than 250m apart ----------------------
 
-<<<<<<< HEAD
+
 # library(fields)
 # source('greatcircle_funcs.R') # alternative, probably faster
 alldists <- fields::rdist.earth(as.matrix(idcsv[,c('First.lon', 'First.lat')]), as.matrix(idcsv[,c('Second.lon', 'Second.lat')]), miles=FALSE, R=6371) # see http://www.r-bloggers.com/great-circle-distance-calculations-in-r/ # slow because it does ALL pairwise distances, instead of just in order
 idcsv$distkm <- diag(alldists)
-||||||| merged common ancestors
-library(fields)
-# source('greatcircle_funcs.R') # alternative, probably faster
-alldists <- rdist.earth(as.matrix(match[,c('First.Lon', 'First.Lat')]), as.matrix(match[,c('Second.Lon', 'Second.Lat')]), miles=FALSE, R=6371) # see http://www.r-bloggers.com/great-circle-distance-calculations-in-r/ # slow because it does ALL pairwise distances, instead of just in order
-match$distkm <- diag(alldists)
-=======
-alldists <- fields::rdist.earth(as.matrix(idcsv[,c('First.lon', 'First.lat')]), as.matrix(idcsv[,c('Second.lon', 'Second.lat')]), miles=FALSE, R=6371) # see http://www.r-bloggers.com/great-circle-distance-calculations-in-r/ # slow because it does ALL pairwise distances, instead of just in order
-idcsv$distkm <- diag(alldists)
->>>>>>> f1e79422a31d500e4761ffefeeb12d342066f1c9
 
 idcsv$disteval <- NA # placeholder
 for(i in 1:nrow(idcsv)){
@@ -244,7 +183,6 @@ for(i in 1:nrow(idcsv)){
 
 # Flag idcsves where size decreases by more than 1.5cm --------------------
 
-<<<<<<< HEAD
 idcsv$size_eval <- NA
 for (i in 1:nrow(idcsv)){
   if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] < idcsv$Second.Date[i]) {
@@ -258,41 +196,21 @@ for (i in 1:nrow(idcsv)){
   if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] > idcsv$Second.Date[i]) {
     if(!is.na(idcsv$First.Size[i]) & (idcsv$First.Size[i] + 1.5) < idcsv$Second.Size[i]){
       idcsv$size_eval[i] <- "FAIL"
-||||||| merged common ancestors
-match$size_eval <- NA
-for (i in 1:nrow(match)){
-  if(!is.na(match$First.Date[i]) & !is.na(match$Second.Date[i])  & match$First.Date[i] < match$Second.Date[i]) {
-    if(!is.na(match$First.Size[i]) & !is.na(match$Second.Size[i]) & (match$First.Size[i] - 1.5) > match$Second.Size[i]){
-      match$size_eval[i] <- "FAIL"
     }
   }
 }
-  
-for (i in 1:nrow(match)){
-  if(!is.na(match$First.Date[i]) & !is.na(match$Second.Date[i])  & match$First.Date[i] > match$Second.Date[i]) {
-    if(!is.na(match$First.Size[i]) & (match$First.Size[i] + 1.5) < match$Second.Size[i]){
-      match$size_eval[i] <- "FAIL"
-=======
-idcsv$size_eval <- NA
-for (i in 1:nrow(idcsv)){
-  if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] < idcsv$Second.Date[i]) {
-    if(!is.na(idcsv$First.Size[i]) & !is.na(idcsv$Second.Size[i]) & (idcsv$First.Size[i] - 1.5) > idcsv$Second.Size[i]){
-      idcsv$size_eval[i] <- "FAIL"
->>>>>>> f1e79422a31d500e4761ffefeeb12d342066f1c9
-    }
-  }
-}
-
 
 
 # Write output ------------------------------------------------------------
 
-write.csv(idcsv, file = paste(Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
+write.csv(idcsv, file = paste("identity/", Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
 
+# cleanup
+rm(alldists, c5, first, lab1, lab2, latlong, second, a, b, c1, c2, c3, c4, date, datesplit, day, hour, i, i2, latlongindex, min, month, sec, time, timesplit, year)
 
 # Open genepop ------------------------------------------------------------
 
-genfile <- ""
+genfile <- "data/2016-09-08_noregeno.genepop" # this should be the genepop you used as input for Cervus ID
 genedf <- readGenepop(genfile)
 
 ### WAIT ###
@@ -300,7 +218,7 @@ genedf <- readGenepop(genfile)
 genedf[,1] <- NULL # remove the pop column from the data file
 # TEST - make sure the first 2 columns are names and a contig and get number of rows
 names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
-nrow(genedf) # 1651
+nrow(genedf) # 1482
 
 
 # Calculate the number of loci for analysis -------------------------------
@@ -314,37 +232,19 @@ which(genedf == "0000") # should return integer(0)
 for(h in 1:nrow(genedf)){
   genedf$numloci[h] <- sum(!is.na(genedf[h,]))
 }
+
+### WAIT ###
+
 # TEST - make sure all of the numloci were populated
 which(is.na(genedf$numloci)) # should return integer(0)
 
-
 genedf$drop <- NA
 
-# Remove problem samples --------------------------------------------------
-
-for (i in 1:nrow(match)){
-  if(!is.na(match$size_eval[i]) & match$size_eval[i] == "FAIL" | !is.na(match$disteval[i]) & match$disteval[i] == "FAIL" | match$date_eval[i] == "FAIL" & !is.na(match$date_eval[i])){
-    a <- which(genedf$names == match$First.ID[i])
-    b <- which(genedf$names == match$Second.ID[i])
-    genedf$drop[a] <- "DROP"
-    genedf$drop[b] <- "DROP"
-  }
-}
-
-# remove the special cases above
-
-# # TEST - compare the ligation IDs that were marked to be dropped from the genepop to the IDs in the match 
-# genos <- genedf$names[which(genedf$drop == "DROP")]
-# firsts <- match$First.ID[which(match$disteval == "FAIL")]
-# secs <- match$Second.ID[which(match$disteval == "FAIL")]
-# firdif <- setdiff(genos,firsts)
-# secdif <- setdiff(firdif, secs)
-
 # Run through id analysis and compare to determine which to remove --------
-for(i in 1:nrow(match)){
+for(i in 1:nrow(idcsv)){
   # a & b are  the line numbers from genepop file that matches an the first and second ID in the match table
-  a <- which(genedf$names == match$First.ID[i])
-  b <- which(genedf$names == match$Second.ID[i])
+  a <- which(genedf$names == idcsv$First.ID[i])
+  b <- which(genedf$names == idcsv$Second.ID[i])
 if (genedf$numloci[a] > genedf$numloci[b]){
   genedf$drop[b] <- "DROP"
 } else{
@@ -386,6 +286,6 @@ for (i in 1:nrow(keep)){
 
 out <- c(msg, loci, 'pop', sample)
 
-write.table(out, file = paste(Sys.Date(), 'norecap.genepop', sep = '_'), row.names=FALSE, quote=FALSE, col.names=FALSE)
+write.table(out, file = paste("data/",Sys.Date(), "_norecap.genepop", sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE)
 
 
