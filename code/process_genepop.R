@@ -188,6 +188,6 @@ for (i in 1:nrow(noregeno)){
 
 out <- c(msg, loci, 'pop', sample)
 
-write.table(out, file = paste(Sys.Date(), 'noregeno.genepop', sep = '_'), row.names=FALSE, quote=FALSE, col.names=FALSE) # won't let me use header=FALSE - use col.names instead of header
+write.table(out, file = paste("data/",Sys.Date(), '_noregeno.genepop', sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE) # won't let me use header=FALSE - use col.names instead of header
 
 
