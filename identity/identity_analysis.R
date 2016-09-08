@@ -4,12 +4,16 @@
 # Set up workspace --------------------------------------------------------
 
 # Lightning
-setwd('/Users/macair/Documents/Philippines/Genetics/identity')
-source("../readGenepop_space.R")
+# setwd('/Users/macair/Documents/Philippines/Genetics/identity')
+source("code/readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
 
-idcsv <- read.csv("2016-08-18_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
+
+# for the 8/18/2016 file, remove the non-matches
+idcsv <- idcsv[idcsv$Status != "Excluded", ]
+idcsv <- idcsv[idcsv$Status != "Not enough loci", ]
 
 ### WAIT ###
 
@@ -66,7 +70,12 @@ names(second) <- paste("Second.", names(second), sep = "")
 idcsv <- left_join(idcsv, first, by = c("First.sample_ID" = "First.Sample_ID"))
 idcsv <- left_join(idcsv, second, by = c("Second.sample_ID" = "Second.Sample_ID"))
 
-latlong <- data.frame(leyte %>% tbl("GPX"), n = -1)
+idcsv$First.lat <- NA
+idcsv$First.lon <- NA
+idcsv$Second.lat <- NA
+idcsv$Second.lon <- NA
+
+latlong <- data.frame(leyte %>% tbl("GPX") %>% collect())
 # latlong <- leyte %>% tbl("GPX")
 
 ### WAIT ###
@@ -91,7 +100,7 @@ for(i in 1:nrow(idcsv)){
     day <- day-1
     hour <- hour + 24
   }
-  
+
   # Find the location records that match the date/time stamp (to nearest second)
   latlongindex <- which(latlong$year == year & latlong$month == month & latlong$day == day & latlong$hour == hour & latlong$min == min)
   i2 <- which.min(abs(latlong$sec[latlongindex] - sec))
@@ -140,16 +149,16 @@ for(i in 1:nrow(idcsv)){
 ### WAIT ###
 
 # Flag matches with same date of capture ----------------------------------
-match$First.Date <- as.Date(match$First.Date, "%m/%d/%Y")
-match$Second.Date <- as.Date(match$Second.Date, "%m/%d/%Y")
+idcsv$First.Date <- as.Date(idcsv$First.Date, "%m/%d/%Y")
+idcsv$Second.Date <- as.Date(idcsv$Second.Date, "%m/%d/%Y")
 
 
-match$date_eval <- NA
-for(i in 1:nrow(match)){
-  a <- match$First.Date[i]
-  b <- match$Second.Date[i]
+idcsv$date_eval <- NA
+for(i in 1:nrow(idcsv)){
+  a <- idcsv$First.Date[i]
+  b <- idcsv$Second.Date[i]
   if (a == b & !is.na(a) & !is.na(b)){
-    match$date_eval[i] <- "FAIL"
+    idcsv$date_eval[i] <- "FAIL"
   }
 }
 
@@ -159,34 +168,34 @@ for(i in 1:nrow(match)){
 
 # Flag matches that were caught more than 250m apart ----------------------
 
-library(fields)
+# library(fields)
 # source('greatcircle_funcs.R') # alternative, probably faster
-alldists <- rdist.earth(as.matrix(match[,c('First.Lon', 'First.Lat')]), as.matrix(match[,c('Second.Lon', 'Second.Lat')]), miles=FALSE, R=6371) # see http://www.r-bloggers.com/great-circle-distance-calculations-in-r/ # slow because it does ALL pairwise distances, instead of just in order
-match$distkm <- diag(alldists)
+alldists <- fields::rdist.earth(as.matrix(idcsv[,c('First.lon', 'First.lat')]), as.matrix(idcsv[,c('Second.lon', 'Second.lat')]), miles=FALSE, R=6371) # see http://www.r-bloggers.com/great-circle-distance-calculations-in-r/ # slow because it does ALL pairwise distances, instead of just in order
+idcsv$distkm <- diag(alldists)
 
-match$disteval <- NA # placeholder
-for(i in 1:nrow(match)){
-  if(!is.na(match$distkm[i]) & 0.250 <= match$distkm[i]){
-    match$disteval[i] <- "FAIL"
+idcsv$disteval <- NA # placeholder
+for(i in 1:nrow(idcsv)){
+  if(!is.na(idcsv$distkm[i]) & 0.250 <= idcsv$distkm[i]){
+    idcsv$disteval[i] <- "FAIL"
   }
 }
 
 
-# Flag matches where size decreases by more than 1.5cm --------------------
+# Flag idcsves where size decreases by more than 1.5cm --------------------
 
-match$size_eval <- NA
-for (i in 1:nrow(match)){
-  if(!is.na(match$First.Date[i]) & !is.na(match$Second.Date[i])  & match$First.Date[i] < match$Second.Date[i]) {
-    if(!is.na(match$First.Size[i]) & !is.na(match$Second.Size[i]) & (match$First.Size[i] - 1.5) > match$Second.Size[i]){
-      match$size_eval[i] <- "FAIL"
+idcsv$size_eval <- NA
+for (i in 1:nrow(idcsv)){
+  if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] < idcsv$Second.Date[i]) {
+    if(!is.na(idcsv$First.Size[i]) & !is.na(idcsv$Second.Size[i]) & (idcsv$First.Size[i] - 1.5) > idcsv$Second.Size[i]){
+      idcsv$size_eval[i] <- "FAIL"
     }
   }
 }
   
-for (i in 1:nrow(match)){
-  if(!is.na(match$First.Date[i]) & !is.na(match$Second.Date[i])  & match$First.Date[i] > match$Second.Date[i]) {
-    if(!is.na(match$First.Size[i]) & (match$First.Size[i] + 1.5) < match$Second.Size[i]){
-      match$size_eval[i] <- "FAIL"
+for (i in 1:nrow(idcsv)){
+  if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] > idcsv$Second.Date[i]) {
+    if(!is.na(idcsv$First.Size[i]) & (idcsv$First.Size[i] + 1.5) < idcsv$Second.Size[i]){
+      idcsv$size_eval[i] <- "FAIL"
     }
   }
 }
