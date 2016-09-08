@@ -12,7 +12,7 @@
 source("code/readGenepop_space.R")
 
 
-# Strip down to Ligation ID  - double check genepop to make sur --------
+# 1) Strip down to Ligation ID  - double check genepop to make sur --------
 
 # locate the genepop file and read as data frame
 genfile <- "data/seq03_16_DP10g95maf40.genepop"
@@ -20,50 +20,36 @@ genedf <- readGenepop(genfile)
 
 ### WAIT ###
 
-genedf[,1] <- NULL # remove the pop column from the data file
+# remove the pop column from the data file
+genedf[,1] <- NULL
 
 # TEST - make sure the first 2 columns are names and a contig and get number of rows
 names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
 nrow(genedf) # 1651
 
 # Strip out the ligation ID
-	genedf$lig <- substr(genedf$names,11,15)
+genedf$lig <- substr(genedf$names,11,15)
 
 # TEST - make sure samples were renamed properly
 genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
 
 # open the laboratory database to retrieve sample info
-# googlesheets::gs_auth(new_user = TRUE) # run this if having authorization problems
-mykey <- '1Rf_dFJ5WK-vTTsIT_kHHOcFrKzQtMFtKiuXiFw1lh9Y' # for Sample_Data file
-lab <- googlesheets::gs_key(mykey)
+suppressMessages(library(dplyr))
+labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-# If this doesn't output Auto-refreshing stale OAuth token.
-# Sheet successfully identified: "Sample_Data"
-# Then use the #gs_auth above
-lig <- googlesheets::gs_read(lab, ws='Ligations')
-dig <- googlesheets::gs_read(lab, ws='Digests')
-extr <- googlesheets::gs_read(lab, ws="Extractions")
+# add lab IDs
+c1 <- labor %>% tbl("extraction") %>% select(extraction_ID, sample_ID)
+c2 <- labor %>% tbl("digest") %>% select(digest_ID, extraction_ID)
+c3 <- left_join(c2, c1, by = "extraction_ID")
+c4 <- labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID)
+c5 <- data.frame(left_join(c4, c3, by = "digest_ID"))
 
 # merge the two dataframes so that lig IDs match up
-largedf <- merge(genedf, lig[,c('Ligation_ID', 'Digest_ID')], by.x = "lig", by.y = "Ligation_ID", all.x = T)
+largedf <- merge(genedf, c5, by.x = "lig", by.y = "ligation_ID", all.x = T)
 
 # TEST - check the last 2 column names and that the number of rows hasn't changed
 p <- ncol(largedf)
-names(largedf[,(p-1):p]) # "dDocent_Contig_256998_105" "Digest_ID"
-nrow(genedf) == nrow(largedf) # should be TRUE
-
-# add extraction IDs
-largedf <- merge(largedf, dig[,c("Digest", "Extraction_ID")], by.x = "Digest_ID", by.y = "Digest", all.x = T)
-# TEST - check the last 2 column names and that the number of rows hasn't changed
-p <- ncol(largedf)
-names(largedf[,(p-1):p]) # "dDocent_Contig_256998_105" "Extraction_ID"
-nrow(genedf) == nrow(largedf) # should be TRUE
-
-# add sample ID's
-largedf <- merge(largedf, extr[,c("Extract", "Sample_ID")], by.x = "Extraction_ID", by.y = "Extract", all.x = T)
-# TEST - check the last 2 column names and that the number of rows hasn't changed
-p <- ncol(largedf)
-names(largedf[,(p-1):p]) # " dDocent_Contig_256998_105" "Sample_ID" 
+names(largedf[,(p-1):p]) # "extraction_ID" "sample_ID"
 nrow(genedf) == nrow(largedf) # should be TRUE
 # look for missing names
 setdiff(genedf$names, largedf$names) # should be character(0)
@@ -106,7 +92,7 @@ j # should return integer(0)
 # Remove regenotyped samples ----------------------------------------------
 
 # make a list of all of the sample ID's that have duplicates (some on this list occur more than once because there are 3 regenos)
-regeno_match <- largedf$Sample_ID[duplicated(largedf$Sample_ID)]
+regeno_match <- largedf$sample_ID[duplicated(largedf$sample_ID)]
 # TEST - make sure a list was generated
 k <- length(regeno_match) # 82
 k
@@ -122,6 +108,8 @@ for(h in 1:nrow(largedf)){
 	largedf$numloci[h] <- sum(!is.na(largedf[h,]))
 }
 
+### WAIT ###
+
 # TEST - make sure all of the numloci were populated ----------------------
 which(is.na(largedf$numloci)) # should return integer(0)
 
@@ -129,7 +117,7 @@ largedf$drop <- NA # place holder
 #run through all of the SampleIDs that are found more than once and keep the one with the most loci
 for(b in 1:k){
   # regeno_drop is the line number from largedf that matches an ID in the regeno_match list
-  regeno_drop <- which(largedf$Sample_ID == regeno_match[b]) 
+  regeno_drop <- which(largedf$sample_ID == regeno_match[b]) 
 	df <- largedf[c(regeno_drop[1],regeno_drop[2],regeno_drop[3],regeno_drop[4]),]  # df is the data frame that holds all of the regenotyped versions of the sample, pulled from largedf
 	p <- ncol(df)
 	keep <- which.max(df[,p-1]) # the row number of df with the largest number of loci
@@ -164,15 +152,15 @@ noregeno <- largedf[is.na(largedf$drop),]
 # TEST - make sure no drop rows made it
 which(noregeno$drop == "DROP") # should return integer(0)
 # TEST - check to see if there are any regenos that were missed
-noregeno_match <- noregeno$Sample_ID[duplicated(noregeno$Sample_ID)]
+noregeno_match <- noregeno$sample_ID[duplicated(noregeno$sample_ID)]
 noregeno_match # should return character(0)  
-# If it doesn't, look deeper: noregeno[which(noregeno$SampleID == "APCL15_403"),], largedf[which(largedf$Sample_ID == "APCL15_403"),]
+# If it doesn't, look deeper: noregeno[which(noregeno$SampleID == "APCL15_403"),], largedf[which(largedf$sample_ID == "APCL15_403"),]
 
 # remove the extra columns from noregeno
-noregeno [,c("Extraction_ID")] <- NULL
-noregeno [,c("Digest_ID")] <- NULL
+noregeno [,c("extraction_ID")] <- NULL
+noregeno [,c("digest_ID")] <- NULL
 noregeno [,c("names")] <- NULL
-noregeno [,c("Sample_ID")] <- NULL
+noregeno [,c("sample_ID")] <- NULL
 noregeno [,c("numloci")] <- NULL
 noregeno [,c("drop")] <- NULL
 
@@ -182,10 +170,7 @@ noregeno[is.na(noregeno)] = "0000"
 which(noregeno == NA) # should return integer(0)
 
 # TEST - compare the length of noregeno to the length of largedf
-nrow(noregeno) == nrow(largedf) - k # 1569/1531
-
-
-
+nrow(noregeno) == nrow(largedf) - k # 1569/1531 - should return TRUE
 
 # 4) Output genepop file --------------------------------------------------
 
