@@ -2,26 +2,28 @@
 
 # Lightning
 # setwd("/Users/macair/Documents/Philippines/Genetics/")
-source("readGenepop_space.R")
+# source("readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
 
+# 8/29/2016 - use fixed lat long code, double check all samples
+# idcsv <- read.csv("identity/allsamples_ID.csv", stringsAsFactors = F)
 idcsv <- read.csv("identity/2016-08-18_ID.csv", stringsAsFactors = F)
 
 ### WAIT ###
 
 # # strip down to just ligation numbers for the all samples file -------------------------------------
 # 
-# idcsv$First.ID <- substr(idcsv$First.ID,11,15)
-# idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
-# 
-# # remove samples that are known for the all samples file
-# idcsv <- idcsv[idcsv$First.ID != "L2364", ] # no field data for this fish
-# idcsv <- idcsv[idcsv$Second.ID != "L0465", ] # no field data for this fish
+idcsv$First.ID <- substr(idcsv$First.ID,11,15)
+idcsv$Second.ID <- substr(idcsv$Second.ID,11,15)
 
-# for the 8/18/2016 file, remove the non-matches
-idcsv <- idcsv[idcsv$Status != "Excluded", ]
-idcsv <- idcsv[idcsv$Status != "Not enough loci", ]
+# remove samples that are known for the all samples file
+idcsv <- idcsv[idcsv$First.ID != "L2364", ] # no field data for this fish
+idcsv <- idcsv[idcsv$Second.ID != "L0465", ] # no field data for this fish
+
+# # for the 8/18/2016 file, remove the non-matches
+# idcsv <- idcsv[idcsv$Status != "Excluded", ]
+# idcsv <- idcsv[idcsv$Status != "Not enough loci", ]
 
 
 # Connect to database and add lab data ------------------------------------
@@ -48,6 +50,9 @@ names(lab2) <- paste("Second.", names(lab2), sep = "")
 
 idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_ID", all.x = T)
 
+# clean up
+rm(c5, lab1, lab2, c1, c2, c3, c4, labor)
+
 # Add field data ----------------------------------------------------------
 leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
@@ -69,10 +74,18 @@ names(second) <- paste("Second.", names(second), sep = "")
 idcsv <- left_join(idcsv, first, by = c("First.sample_ID" = "First.Sample_ID"))
 idcsv <- left_join(idcsv, second, by = c("Second.sample_ID" = "Second.Sample_ID"))
 
-latlong <- data.frame(leyte %>% tbl("GPX"), n = -1)
+#  clean up
+rm (first, second, c1, c2, c3, c4)
+
+latlong <- data.frame(leyte %>% tbl("GPX") %>% collect())
 # latlong <- leyte %>% tbl("GPX")
 
 ### WAIT ###
+
+idcsv$First.lat <- NA
+idcsv$First.lon <- NA
+idcsv$Second.lat <- NA
+idcsv$Second.lon <- NA
 
 # Add lat long for first.id -----------------------------------------------
 for(i in 1:nrow(idcsv)){
@@ -199,18 +212,14 @@ matches <- idcsv[which(is.na(idcsv$disteval) & is.na(idcsv$date_eval) & is.na(id
 write.csv(matches, file = paste(Sys.Date(),"matches.csv", sep = ""))
 
 # remove samples that did not have GPS data
-issues <- issues[issues$First.ID != "L2283", ] # no gps data for this fish (2012 fish)
-issues <- issues[issues$First.ID != "L2431", ] # no gps data for this fish (2012 fish)
-issues <- issues[issues$First.ID != "L2292", ] # no gps data for this fish (2012 fish)
-issues <- issues[issues$First.ID != "L1101", ] # no gps data for this fish (2014 fish)
-issues <- issues[issues$First.ID != "L1102", ] # no gps data for this fish (2014 fish)
+# issues <- issues[issues$First.ID != "L2283", ] # no gps data for this fish (2012 fish)
+# issues <- issues[issues$First.ID != "L2431", ] # no gps data for this fish (2012 fish)
+# issues <- issues[issues$First.ID != "L2292", ] # no gps data for this fish (2012 fish)
+# issues <- issues[issues$First.ID != "L1101", ] # no gps data for this fish (2014 fish)
+# issues <- issues[issues$First.ID != "L1102", ] # no gps data for this fish (2014 fish)
 
 # remove the fish that was caught twice in the same field season
-issues <- issues[issues$First.ID != "L1084", ] # regenotype
-
-
-
-
+# issues <- issues[issues$First.ID != "L1084", ] # regenotype
 
 
 ###########################################################################
