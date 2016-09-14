@@ -9,7 +9,8 @@
 
 # Lightning
 # setwd("~/Documents/Philippines/Genetics/")
-source("code/readGenepop_space.R")
+# source("code/readGenepop_space.R")
+source("data/readGenepop_space.R")
 
 
 # 1) Strip down to Ligation ID  - double check genepop to make sur --------
