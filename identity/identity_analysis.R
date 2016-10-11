@@ -23,50 +23,57 @@ labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu",
 
 # add lab IDs
 
-c1 <- labor %>% tbl("extraction") %>% select(extraction_ID, sample_ID)
-c2 <- labor %>% tbl("digest") %>% select(digest_ID, extraction_ID)
-c3 <- left_join(c2, c1, by = "extraction_ID")
-c4 <- labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID)
-c5 <- data.frame(left_join(c4, c3, by = "digest_ID"))
+suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
+suppressWarnings(c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id))
+c3 <- left_join(c2, c1, by = "extraction_id")
+suppressWarnings(c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id))
+c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
 
-# for First.IDs 
+# for First.ids 
 lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
 
-idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_ID", all.x = T)
-
-### WAIT ###
+idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_id", all.x = T)
 
 # For Second.IDs
 lab2 <- c5
 names(lab2) <- paste("Second.", names(lab2), sep = "")
 
-idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_ID", all.x = T)
+idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_id", all.x = T)
 
-### WAIT ###
+
+# check proportion of matches/mismatches
+idcsv <- idcsv %>% mutate(mismatch_prop = Mismatching.loci/(Mismatching.loci+Matching.loci))
+
+plot(mismatch_prop ~ Matching.loci, idcsv, bty = "n", las = 1)
+abline(h=0.015)
+# bty "l" is this type, "n" is no box
+#las 1 is all labels horizontal, 2 is always perpendicular to axis, 3 is always vertical.
+
+# clean up
+rm(lab1, lab2)
 
 # Add field data ----------------------------------------------------------
 leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 
-c1 <- leyte %>% tbl("diveinfo") %>% select(id, Date, Name)
-c2 <- leyte %>% tbl("anemones") %>% select(dive_table_id, anem_table_id, ObsTime)
+suppressWarnings(c1 <- leyte %>% tbl("diveinfo") %>% select(id, Date, Name))
+suppressWarnings(c2 <- leyte %>% tbl("anemones") %>% select(dive_table_id, anem_table_id, ObsTime))
 c3 <- left_join(c2, c1, by = c("dive_table_id" = "id"))
-# c4 <- leyte %>% tbl("clownfish") %>% select(fish_table_id, anem_table_id, Sample_ID, Size) 
-c4 <- tbl(leyte, sql("SELECT fish_table_id, anem_table_id, Sample_ID, Size FROM clownfish where Sample_ID is not NULL"))
-first <- data.frame(left_join(c4, c3, by = "anem_table_id"))
+suppressWarnings(c4 <- tbl(leyte, sql("SELECT fish_table_id, anem_table_id, Sample_ID, Size FROM clownfish where Sample_ID is not NULL")))
+first <- left_join(c4, c3, by = "anem_table_id") %>% collect()
 
 ### WAIT ###
 
-second <- data.frame(left_join(c4, c3, by = "anem_table_id"))
+second <- left_join(c4, c3, by = "anem_table_id") %>% collect()
 
 ### WAIT ###
 
 names(first) <- paste("First.", names(first), sep = "")
 names(second) <- paste("Second.", names(second), sep = "")
-idcsv <- left_join(idcsv, first, by = c("First.sample_ID" = "First.Sample_ID"))
-idcsv <- left_join(idcsv, second, by = c("Second.sample_ID" = "Second.Sample_ID"))
+idcsv <- left_join(idcsv, first, by = c("First.sample_id" = "First.Sample_ID"))
+idcsv <- left_join(idcsv, second, by = c("Second.sample_id" = "Second.Sample_ID"))
 
 
 idcsv$First.lat <- NA
@@ -74,8 +81,7 @@ idcsv$First.lon <- NA
 idcsv$Second.lat <- NA
 idcsv$Second.lon <- NA
 
-latlong <- data.frame(leyte %>% tbl("GPX") %>% collect())
-# latlong <- leyte %>% tbl("GPX")
+latlong <- leyte %>% tbl("GPX") %>% collect()
 
 ### WAIT ###
 
@@ -95,8 +101,8 @@ for(i in 1:nrow(idcsv)){
   
   # Convert time to GMT
   hour <- hour - 8
-  if(!is.na(hour) & hour <0){
-    day <- day-1
+  if(!is.na(hour) & hour < 0){
+    day <- day - 1
     hour <- hour + 24
   }
 
@@ -147,6 +153,9 @@ for(i in 1:nrow(idcsv)){
 
 ### WAIT ###
 
+# cleanup
+rm(first, second, c5, latlong)
+
 # Flag matches with same date of capture ----------------------------------
 idcsv$First.Date <- as.Date(idcsv$First.Date, "%m/%d/%Y")
 idcsv$Second.Date <- as.Date(idcsv$Second.Date, "%m/%d/%Y")
@@ -162,8 +171,6 @@ for(i in 1:nrow(idcsv)){
 }
 
 ### WAIT ### - if you have to wait here, double check the number of obs, there may be a problem with the attachment of metadata
-
-
 
 # Flag matches that were caught more than 250m apart ----------------------
 
@@ -203,7 +210,7 @@ for (i in 1:nrow(idcsv)){
 
 # Write output ------------------------------------------------------------
 
-write.csv(idcsv, file = paste("identity/", Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
+# write.csv(idcsv, file = paste("identity/", Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
 
 # cleanup
 rm(alldists, c5, first, lab1, lab2, latlong, second, a, b, c1, c2, c3, c4, date, datesplit, day, hour, i, i2, latlongindex, min, month, sec, time, timesplit, year)
