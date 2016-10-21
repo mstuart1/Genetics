@@ -1,5 +1,4 @@
 # This script is written to take the filtered genepop file from dDocent and 1) strip any named samples down to pure ligation number, 2) identify and remove re-genotyped samples based on number of loci (SNPs), 3) generate a new genepop file to be fed to cervus for identification of recaptures.
-# TODO: change from google docs to database
 
 # Set up working directory ---------------------------------------------
 
@@ -9,8 +8,8 @@
 
 # Lightning
 # setwd("~/Documents/Philippines/Genetics/")
-# source("code/readGenepop_space.R")
-source("data/readGenepop_space.R")
+source("code/readGenepop_space.R")
+# source("data/readGenepop_space.R")
 
 
 # 1) Strip down to Ligation ID  - double check genepop to make sur --------
@@ -22,17 +21,17 @@ genedf <- readGenepop(genfile)
 ### WAIT ###
 
 # remove the pop column from the data file
-genedf[,1] <- NULL
+genedf$pop <- NULL
 
 # TEST - make sure the first 2 columns are names and a contig and get number of rows
 names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
 nrow(genedf) # 1651
 
-# Strip out the ligation ID
-genedf$lig <- substr(genedf$names,11,15)
-
-# TEST - make sure samples were renamed properly
-genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
+# # Strip out the ligation ID
+# genedf$lig <- substr(genedf$names,11,15)
+# 
+# # TEST - make sure samples were renamed properly
+# genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
 
 # open the laboratory database to retrieve sample info
 suppressMessages(library(dplyr))
