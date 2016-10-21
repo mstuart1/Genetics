@@ -23,9 +23,9 @@ genedf <- readGenepop(genfile)
 # remove the pop column from the data file
 genedf$pop <- NULL
 
-# TEST - make sure the first 2 columns are names and a contig and get number of rows
-names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
-nrow(genedf) # 1651
+# # TEST - make sure the first 2 columns are names and a contig and get number of rows
+# names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
+# nrow(genedf) # 1651
 
 # # Strip out the ligation ID
 # genedf$lig <- substr(genedf$names,11,15)
@@ -33,40 +33,42 @@ nrow(genedf) # 1651
 # # TEST - make sure samples were renamed properly
 # genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
 
+# Connect to database -----------------------------------------------------
 # open the laboratory database to retrieve sample info
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-# add lab IDs
-c1 <- labor %>% tbl("extraction") %>% select(extraction_ID, sample_ID)
-c2 <- labor %>% tbl("digest") %>% select(digest_ID, extraction_ID)
-c3 <- left_join(c2, c1, by = "extraction_ID")
-c4 <- labor %>% tbl("ligation") %>% select(ligation_ID, digest_ID)
-c5 <- data.frame(left_join(c4, c3, by = "digest_ID"))
 
-# merge the two dataframes so that lig IDs match up
-largedf <- merge(genedf, c5, by.x = "lig", by.y = "ligation_ID", all.x = T)
+# Add sample IDs ----------------------------------------------------------
+suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
+suppressWarnings(c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id))
+c3 <- left_join(c2, c1, by = "extraction_id")
+suppressWarnings(c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id))
+c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
+c5 <- subset(c5, !is.na("sample_id"), select = c(ligation_id, sample_id)) 
 
-# TEST - check the last 2 column names and that the number of rows hasn't changed
-p <- ncol(largedf)
-names(largedf[,(p-1):p]) # "extraction_ID" "sample_ID"
-nrow(genedf) == nrow(largedf) # should be TRUE
-# look for missing names
-setdiff(genedf$names, largedf$names) # should be character(0)
+
+# Merge the two dataframes so that lig IDs match up -----------------------
+
+largedf <- left_join(genedf, c5, by = c("lig" = "ligation_id"), copy = T)
+
+# # TEST - check the last 2 column names and that the number of rows hasn't changed
+# p <- ncol(largedf)
+# names(largedf[,(p-1):p]) # "lig" "sample_ID"
+# nrow(genedf) == nrow(largedf) # should be TRUE
+# # look for missing names
+# setdiff(genedf$names, largedf$names) # should be character(0)
 
 # Remove samples with known issues ----------------------------------------
 
 # to remove samples with known issues, pull the data from the known issues database
 
 # Connect to the database
-library(RMySQL)
-leyte <- DBI::dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Leyte", port=3306)
-
-# See a list of tables in the database
-# dbListTables(leyte)
+suppressMessages(library(dplyr))
+leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 # Read a table into R
-iss <- dbSendQuery(leyte, "select * from known_issues")
+iss <- leyte %>% 
 
 # iss is now sitting on the mysql server waiting to be retrieved.The n in the function specifies the number of records to retrieve, using n=-1 retrieves all pending records.
 iss <- fetch(iss, n=-1) 
