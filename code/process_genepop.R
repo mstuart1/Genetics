@@ -27,17 +27,16 @@ genedf$pop <- NULL
 # names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
 # nrow(genedf) # 1651
 
-# # Strip out the ligation ID
-# genedf$lig <- substr(genedf$names,11,15)
-# 
-# # TEST - make sure samples were renamed properly
-# genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
+# Strip out the ligation ID
+genedf$lig <- substr(genedf$names,11,15)
 
-# Connect to database Labor-----------------------------------------------------
+# TEST - make sure samples were renamed properly
+genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
+
+# Connect to database Labor  ----------------------------------------------
 # open the laboratory database to retrieve sample info
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
-
 
 # Add sample IDs ----------------------------------------------------------
 suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
@@ -98,14 +97,6 @@ largedf$issue <- NULL
 
 # Remove regenotyped samples ----------------------------------------------
 
-# make a list of all of the sample ID's that have duplicates (some on this list occur more than once because there are 3 regenos)
-# this line of code keeps any sample_id that comes up as TRUE for being duplicated
-regeno_match <- largedf$sample_id[duplicated(largedf$sample_id)]
-
-# # TEST - make sure a list was generated
-# k <- length(regeno_match) 
-# k # 82
-
 # Calculate the number of genotyped loci for each sample ----------------
 
 # convert 0000 to NA in the genepop data
@@ -121,20 +112,39 @@ for(h in 1:nrow(largedf)){
 
 ### WAIT ###
 
-# TEST - make sure all of the numloci were populated ----------------------
-which(is.na(largedf$numloci)) # should return integer(0)
+# # TEST - make sure all of the numloci were populated ----------------------
+# which(is.na(largedf$numloci)) # should return integer(0)
+
+# make a list of all of the sample ID's that have duplicates (some on this list occur more than once because there are 3 regenos)
+# this line of code keeps any sample_id that comes up as TRUE for being duplicated
+regenod <- largedf %>%
+  filter(duplicated(largedf$sample_id)) %>%
+  select(sample_id)
+
+# # TEST - make sure a list was generated
+k <- nrow(regenod)
+k # 82
+
 
 largedf$drop <- NA # place holder
 #run through all of the SampleIDs that are found more than once and keep the one with the most loci
+# for testing b <- 1
 for(b in 1:k){
   # regeno_drop is the line number from largedf that matches an ID in the regeno_match list
-  regeno_drop <- which(largedf$sample_id == regeno_match[b]) 
-	df <- largedf[c(regeno_drop[1],regeno_drop[2],regeno_drop[3],regeno_drop[4]),]  # df is the data frame that holds all of the regenotyped versions of the sample, pulled from largedf
-	p <- ncol(df)
-	keep <- which.max(df[,p-1]) # the row number of df with the largest number of loci
+  regeno_drop <- which(largedf$sample_id == regenod[b,]) 
+  # df is the data frame that holds all of the regenotyped versions of the sample, pulled from largedf
+  df <- largedf[regeno_drop, ]  
+	# the row number of df with the largest number of loci (p-1 indicates the column)
+	keep <- which.max(df$numloci) 
+	# convert the df number to the row number of large df
 	c <- regeno_drop[keep]
+	# convert the drop column of the row to keep to not na
 	df$drop[keep] <- "KEEP"
+	# convert the drop column of large df to not na
 	largedf$drop[c] <- "KEEP"
+	
+	# find the row numbers of largedf that need to be dropped
+	# test e <- 2
 	for(e in 1:nrow(df)){
 	if(is.na(df$drop[e])){
 		f <-regeno_drop[e]
@@ -143,12 +153,11 @@ for(b in 1:k){
 	}
 }
 
-
 # TEST - make sure all of the regenos were dropped ----------------------------
 a <- length(which(largedf$drop == "KEEP")) # num keeps
-b <- length(which(duplicated(regeno_match) == TRUE)) # num multiple regenos
-a + b == length(regeno_match) # should return TRUE
-length(which(largedf$drop == "DROP")) == length(regeno_match) # should be TRUE
+b <- length(which(duplicated(regenod) == TRUE)) # num multiple regenos
+a + b == nrow(regenod) # should return TRUE
+length(which(largedf$drop == "DROP")) == nrow(regenod) # should be TRUE
 
 
 # convert all of the KEEPs to NAs 
