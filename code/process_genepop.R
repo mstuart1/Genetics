@@ -106,12 +106,13 @@ regeno_match <- largedf$sample_id[duplicated(largedf$sample_id)]
 # k <- length(regeno_match) 
 # k # 82
 
-##### calculate the number of genotyped loci for each sample #####
+# Calculate the number of genotyped loci for each sample ----------------
 
 # convert 0000 to NA in the genepop data
 largedf[largedf == "0000"] = NA
-# TEST - make sure there are no "0000" left
-which(largedf == "0000") # should return integer(0)
+
+# # TEST - make sure there are no "0000" left
+# which(largedf == "0000") # should return integer(0)
 
 # count the number of loci per individual (have to use for loop)
 for(h in 1:nrow(largedf)){
