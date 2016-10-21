@@ -33,7 +33,7 @@ genedf$pop <- NULL
 # # TEST - make sure samples were renamed properly
 # genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
 
-# Connect to database -----------------------------------------------------
+# Connect to database Labor-----------------------------------------------------
 # open the laboratory database to retrieve sample info
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
@@ -47,6 +47,8 @@ suppressWarnings(c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_
 c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
 c5 <- subset(c5, !is.na("sample_id"), select = c(ligation_id, sample_id)) 
 
+# cleanup
+rm(c1, c2, c3, c4)
 
 # Merge the two dataframes so that lig IDs match up -----------------------
 
@@ -63,41 +65,47 @@ largedf <- left_join(genedf, c5, by = c("lig" = "ligation_id"), copy = T)
 
 # to remove samples with known issues, pull the data from the known issues database
 
-# Connect to the database
+# Connect to database Leyte -----------------------------------------------------
+# open the laboratory database to retrieve sample info
 suppressMessages(library(dplyr))
 leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-# Read a table into R
-iss <- leyte %>% 
+# Read known issues table into R ------------------------------------------
+iss <- leyte %>% tbl("known_issues") %>% collect()
 
-# iss is now sitting on the mysql server waiting to be retrieved.The n in the function specifies the number of records to retrieve, using n=-1 retrieves all pending records.
-iss <- fetch(iss, n=-1) 
+# Remove ligation IDs with issues -----------------------------------------
 
+# create a new table with only the issue samples, keep only lig and issue
+iss_lig <- largedf %>%
+  filter(lig %in% iss$Ligation_ID) %>%
+  select(lig) %>%
+  mutate(issue = 1)
 
-# change the lig_ID for known issue samples to NA for easy removal
-for (i in 1:nrow(iss)){
-  j <- which(iss$Ligation_ID[i] == largedf$lig)
-  largedf$lig[j] <- NA
-}
-# the number of IDs that matched (not necessarily the length of the iss table)
-m <- length(which(is.na(largedf$lig))) 
+m <- nrow(iss_lig) # for testing later
 
-# remove the samples with issues from the noregeno table
-inds <- !is.na(largedf$lig)
-largedf <- largedf[inds,]
+# merge the issue column into the original table
+largedf <- left_join(largedf, iss_lig, by = "lig")
 
-# TEST - make sure no more match the list
-for (i in 1:nrow(iss)){
-  j <- which(iss$Ligation_ID[i] == largedf$lig)}
-j # should return integer(0)
+# remove all samples with issue = 1
+largedf <- largedf[is.na(largedf$issue), ]
+largedf$issue <- NULL
+
+# # TEST - make sure no more match the list
+# j <- largedf %>%
+#   filter(lig %in% iss$Ligation_ID)
+# nrow(j) # should return 0
   
+
 # Remove regenotyped samples ----------------------------------------------
 
 # make a list of all of the sample ID's that have duplicates (some on this list occur more than once because there are 3 regenos)
-regeno_match <- largedf$sample_ID[duplicated(largedf$sample_ID)]
-# TEST - make sure a list was generated
-k <- length(regeno_match) # 82
-k
+# this line of code keeps any sample_id that comes up as TRUE for being duplicated
+regeno_match <- largedf$sample_id[duplicated(largedf$sample_id)]
+
+# # TEST - make sure a list was generated
+# k <- length(regeno_match) 
+# k # 82
+
 ##### calculate the number of genotyped loci for each sample #####
 
 # convert 0000 to NA in the genepop data
@@ -119,7 +127,7 @@ largedf$drop <- NA # place holder
 #run through all of the SampleIDs that are found more than once and keep the one with the most loci
 for(b in 1:k){
   # regeno_drop is the line number from largedf that matches an ID in the regeno_match list
-  regeno_drop <- which(largedf$sample_ID == regeno_match[b]) 
+  regeno_drop <- which(largedf$sample_id == regeno_match[b]) 
 	df <- largedf[c(regeno_drop[1],regeno_drop[2],regeno_drop[3],regeno_drop[4]),]  # df is the data frame that holds all of the regenotyped versions of the sample, pulled from largedf
 	p <- ncol(df)
 	keep <- which.max(df[,p-1]) # the row number of df with the largest number of loci
@@ -154,7 +162,7 @@ noregeno <- largedf[is.na(largedf$drop),]
 # TEST - make sure no drop rows made it
 which(noregeno$drop == "DROP") # should return integer(0)
 # TEST - check to see if there are any regenos that were missed
-noregeno_match <- noregeno$sample_ID[duplicated(noregeno$sample_ID)]
+noregeno_match <- noregeno$sample_id[duplicated(noregeno$sample_id)]
 noregeno_match # should return character(0)  
 # If it doesn't, look deeper: noregeno[which(noregeno$SampleID == "APCL15_403"),], largedf[which(largedf$sample_ID == "APCL15_403"),]
 
