@@ -1,0 +1,96 @@
+"Ligation_ID","Issue","sample_id","lig","date"
+"L0288","matches L0606 with a distance error (~600m), lat longs check out, regenotype","APCL13_255",NA,NA
+"L0370","matches L0742 with a distance error (~1.8km), lat longs check out, regenotype","APCL13_351",NA,NA
+"L0377","Distance error, matches with L0974, regenotype","APCL13_362",NA,NA
+"L0413","distance error, matches with L2695, regenotype","APCL13_040",NA,NA
+"L0415","distance error, matches with L2935, regenotype","APCL13_042","L3033","2016-09-21"
+"L0425","same fish caught next day at different site?  lab error? matches L0427, regenotype","APCL13_090",NA,NA
+"L0427","same fish caught next day at different site? lab error? matches L0425, regenotype","APCL13_101",NA,NA
+"L0443","Is from Palanas but matches to a sample from Visca (L0945, L2815), never on the same plate, regenotype","APCL13_205","L3000","2016-09-21"
+"L0465","there is no field data for this fish","APCL13_018",NA,NA
+"L0489","extract plate label error, could be APCL13_535 (consecutive) or could be APCL13_537 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_535",NA,NA
+"L0490","extract plate label error, could be APCL13_537 (consecutive) or could be APCL13_539 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_537",NA,NA
+"L0491","extract plate label error, could be APCL13_538 (consecutive) or could be APCL13_540 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_538",NA,NA
+"L0493","extract plate label error, could be APCL13_549 (consecutive) or could be APCL13_547 (strange tube order in freezer box)","id_error_5",NA,NA
+"L0495","extract plate label error, could be APCL13_553 (consecutive) or could be APCL13_549 (strange tube order in freezer box)","id_error_6",NA,NA
+"L0595","extract plate label error, could be 304 or 306","id_error_1",NA,NA
+"L0596","Unsure which fin clip was placed in this extraction, APCL14_305 or APCL14_306","id_error_3",NA,NA
+"L0606","matches L0288 with a distance error (~600m), lat longs check out, regenotype","APCL14_330","L3144","2016-09-21"
+"L0610","distance error, matches with L2900, regenotype","APCL14_343","L3141","2016-09-21"
+"L0669","extract plate label error, could be APCL13_534 (consecutive) or could be APCL13_536 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_534",NA,NA
+"L0697","Is from Magbangon but matches to a sample from Palanas (L0922) - never on the same plate, regenotype","APCL13_654","L3021","2016-09-21"
+"L0715","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_155","L3026","2016-09-21"
+"L0718","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_196","L3014","2016-09-21"
+"L0738","distance error, matches with L2904, regenotype","APCL14_384","L3154","2016-09-21"
+"L0742","matches L0370 with a distance error (~1.8km), lat longs check out, regenotype","APCL14_445","L3163","2016-09-21"
+"L0747","distance error, matches with L2529, regenotype","APCL14_546","L3165","2016-09-21"
+"L0764","distance error, matches with L2850, regenotype","APCL14_455","L3139","2016-09-21"
+"L0781","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_157","L3115","2016-09-21"
+"L0808","Unsure which fin clip was placed in this extraction, APCL14_305 or APCL14_304","id_error_2",NA,NA
+"L0822","distance error, matches with L1667, regenotype","APCL14_357","L3121","2016-09-21"
+"L0846","distance error, matches with L1238, regenotype","APCL13_447","L2988","2016-09-21"
+"L0863","extract plate label error, could be APCL13_536 (consecutive) or could be APCL13_538 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_536",NA,NA
+"L0864","extract plate label error, could be APCL13_539 (consecutive) or could be APCL13_541 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_539",NA,NA
+"L0865","extract plate label error, could be APCL13_541 (consecutive) or could be APCL13_543 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_541",NA,NA
+"L0866","extract plate label error, could be APCL13_542 (consecutive) or could be APCL13_544 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_542",NA,NA
+"L0867","extract plate label error, could be APCL13_543 (consecutive) or could be APCL13_545 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_543",NA,NA
+"L0868","extract plate label error, could be APCL13_547 (consecutive) or could be APCL13_553 (strange tube order in freezer box)","id_error_4",NA,NA
+"L0880","extract plate label error, could be APCL13_540 (consecutive) or could be APCL13_542 if APCL13_534,APCL13_535 were mistype to 544, 545","APCL13_540",NA,NA
+"L0908","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_154","L3009","2016-09-21"
+"L0909","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_156","L3065","2016-09-21"
+"L0910","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_158","L3015","2016-09-21"
+"L0911","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_159","L3025","2016-09-21"
+"L0912","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_166",NA,NA
+"L0914","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_183",NA,NA
+"L0916","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_208",NA,NA
+"L0922","Is from Palanas but matches to a sample from Magbangon (L0697), never on the same plate, regenotype","APCL14_088","L3128","2016-09-21"
+"L0936","distance error, matches to L2909, L2490, regenotype","APCL14_450","L3145","2016-09-21"
+"L0973","distance error, matches with L2754, regenotype","APCL14_543","L3122","2016-09-21"
+"L0974","distance error, matches with L0377, regenotype","APCL14_555","L3120","2016-09-21"
+"L0994","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_202","L3053","2016-09-21"
+"L1072","distance error, matches with L2731, regenotype","APCL13_103",NA,NA
+"L1088","distance error, matches with L2882, regenotype","APCL13_125",NA,NA
+"L1216","extract plate label error, could be APCL13_553 (consecutive) or could be APCL13_549 (strange tube order in freezer box)","id_error_6",NA,NA
+"L1238","distance error, matches with L0846, regenotype","APCL14_447","L3159","2016-09-21"
+"L1241","distance error, matches with L2772, regenotype","APCL14_549","L3170","2016-09-21"
+"L1251","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_164","L3117","2016-09-21"
+"L1276","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_195","L3066","2016-09-21"
+"L1288","distance error, matches with L2764, regenotype","APCL14_558","L3156","2016-09-21"
+"L1292","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_161","L3118","2016-09-21"
+"L1345","distance error, matches with L2818, regenotype","APCL14_436","L3127","2016-09-21"
+"L1596","ligation plate label error, put APCL14_303 in this spot and moved APCL13_048 down a spot, causing a shift in sample IDs for rest of pool, however, APCL14_303 was mislabeled and it's true identity cannot be determined (either 304 or 306)","id_error_1",NA,NA
+"L1627","Cannot know the id of this sample","APCL13_209",NA,NA
+"L1638","Unsure which fin clip was placed in this extraction","APCL13_430",NA,NA
+"L1643","didn't sequence well, cannot be sure which sample was placed in this well","APCL13_140",NA,NA
+"L1644","didn't sequence well, cannot be sure which sample was placed in this well","APCL14_477",NA,NA
+"L1659","ligation plate label error","APCL13_098",NA,NA
+"L1667","does not follow pattern of rest of plate, matches ?recapture? APCL14_357, APCL13_367 is also a potential ID for this sequence, distance error, matches with L0822, L2448, but these did not match each other, regenotype","APCL13_369",NA,NA
+"L1668","did not sequence well, regenotype","APCL13_393",NA,NA
+"L1705","distance error and size error, matches with L0678, L0737, L1737, 1742 regenotype","APCL14_511","L3136","2016-09-21"
+"L1726","unclear which is which","APCL13_663",NA,NA
+"L1727","unclear which is which","APCL13_664",NA,NA
+"L2250","distance error, matches with L2904, regenotype","APCL14_384","L3154","2016-09-21"
+"L2283","Wrong sample was grabbed for either this ligation or L2385, need to regenotype","APCL12_202","L3116","2016-09-21"
+"L2292","do not have GPS info for this fish, but it maches L0485 and L0893 which match each other and are all found at P. San Flower, these are the same fish","APCL12_218",NA,NA
+"L2364","this sample has no field data","APCL12_078",NA,NA
+"L2385","Wrong sample was grabbed for either this ligation or L2283, need to regenotype","APCL12_203","L3042","2016-09-21"
+"L2392","distance error, matches with L2772, regenotype","APCL14_549","L3170","2016-09-21"
+"L2431","there is no GPS data for this fish, see field notebook","APCL12_213",NA,NA
+"L2444","Possible that the wrong extract was grabbed for this ligation - matches to id_error_2, regenotype","APCL14_302","L2984","2016-09-21"
+"L2448","distance error, matches with L1667, regenotype","APCL14_357","L3121","2016-09-21"
+"L0443","distance error, matches with L0945, regenotype","APCL13_205","L3000","2016-09-21"
+"L2529","distance error, matches with L0747, regenotype","APCL13_609",NA,NA
+"L2695","distance error, matches with L0413, regenotype","APCL15_371766","L3008","2016-09-21"
+"L2716","distance error, matches with L0424, L0722, L1738, regenotype","APCL15_372039","L3169","2016-09-21"
+"L2731","distance error, matches with L1072, regenotype","APCL15_369558","L3137","2016-09-21"
+"L2754","distance error, matches with L0973, regenotype","APCL15_402724","L3138","2016-09-21"
+"L2764","distance error, matches with L1288, regenotype","APCL15_355704","L3112","2016-09-21"
+"L2772","distance error, matches with L1241, L2392 but they don't match each other, regenotype","APCL15_403215","L3132","2016-09-21"
+"L2818","distance error, matches with L1345, regenotype","APCL15_372744","L3140","2016-09-21"
+"L2850","distance error, matches with L0764, regenotype","APCL15_373943","L3151","2016-09-21"
+"L2882","distance error, matches with L1088, regenotype","APCL15_355180","L3058","2016-09-21"
+"L2900","distance error, matches with L0610, regenotype","APCL15_401656","L3024","2016-09-21"
+"L2904","distance error, matches with L0738, L2250, they don't match each other, regenotype","APCL15_405940","L3111","2016-09-21"
+"L0945","distance error, matches with L0443, regenotype","APCL14_007","L3113","2016-09-21"
+"L2935","distance error, matches with L0415, regenotype","APCL15_371404","L3133","2016-09-21"
+"L0911","This group of samples all genotype as the same individual, lab error somewhere, regenotype","APCL14_159","L3025","2016-09-21"
