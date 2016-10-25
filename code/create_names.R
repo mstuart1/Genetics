@@ -5,7 +5,7 @@
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
-suppressWarnings(ligs <- labor %>% tbl("ligation") %>% select(ligation_id, barcode_num, pool) %>% filter(pool == "P069")) # manuall fill in pool number
+suppressWarnings(ligs <- labor %>% tbl("ligation") %>% select(ligation_id, barcode_num, pool) %>% filter(pool == "P072")) # manuall fill in pool number
 
 barcode <- labor %>% tbl("barcodes")
 
@@ -17,4 +17,7 @@ names <- names[ , c(2,4)]
 
 # write a tsv of the result - this should be uploaded to amphiprion
 write.table(names, file = paste("data/names-", filename, ".tsv", sep = ""), sep = "\t", row.names = F, col.names = F, quote = F)
+
+# cleanup before running next pool
+rm(names, filename, ligs)
 
