@@ -15,6 +15,9 @@ names <- left_join(ligs, barcode, by = "barcode_num") %>% collect()
 filename <- as.character(names[1, 3])
 names <- names[ , c(2,4)]
 
+# add population to names for dDocent
+names$ligation_id <- paste("APCL_", names$ligation_id, sep = "")
+
 # write a tsv of the result - this should be uploaded to amphiprion
 write.table(names, file = paste("data/names-", filename, ".tsv", sep = ""), sep = "\t", row.names = F, col.names = F, quote = F)
 
