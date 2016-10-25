@@ -17,4 +17,4 @@ index <- left_join(index, illumina, by = c("index" = "index_num")) %>% collect()
 index <- index[ , c(2,4)]
 
 # write a tsv of the result - this should be uploaded to amphiprion
-write.table(index, file = "index-seq17.tsv", sep = "\t", row.names = F, col.names = F, quote = F)
+write.table(index, file = "data/index-seq17.tsv", sep = "\t", row.names = F, col.names = F, quote = F)
