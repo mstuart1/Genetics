@@ -42,5 +42,24 @@ old <- read.csv("data/APCL_read_data.csv", stringsAsFactors = F)
 # add new data
 old <- rbind(old, reads)
 
-
+# write to file to keep running tally
 write.csv(old, "data/APCL_read_data.csv", row.names = F)
+
+# analyze the read data
+plot(x = old$total_reads, y = old$percent_retained)
+
+# the above plot shows that most of our samples retain the majority of their reads.
+# Let's make a histogram of total reads to see where our low end performers are
+brk <- seq(0,10000000,100000)
+x <- hist(old$total_reads, breaks = brk)
+
+
+# I want to take a look at the low performers
+plot(x = old$total_reads, y = old$percent_retained, type = "p", xlim = c(0,50000))
+
+# I want a list of samples where total reads are less than 25,000
+suppressMessages(library(dplyr))
+old_low_tot <- old %>% filter(total_reads < 50000)
+
+# These samples need to be evaluated to see if they have been genotyped in the past or if they need to be regenotyped
+write.csv(old_low_tot, file = "data/low_performers.csv", row.names = F)
