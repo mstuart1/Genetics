@@ -45,3 +45,10 @@ colnames(recent) <- c("lig", "date", "sample_id")
 iss <- left_join(iss, recent, by = "sample_id")
 
 write.csv(iss, file = "data/issues_regeno.csv", row.names = F)
+
+# this block doesn't work
+# # pull the list of samples with regeno marked as Y from the database
+# need_regeno <- sql("select * from ligation where regeno like 'Y';") 
+# need_regeno <- collect(need_regeno)
+
+
