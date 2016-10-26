@@ -6,7 +6,7 @@
 # Set the input file name
 # (The program must be run from within the directory that contains this data file)
 #InFileName = './logs/16process.out'
-InFileName = raw_input("Enter the path and file name of the log, i.e. ./logs/16process.out: ")
+InFileName = raw_input("Enter the path and file name of the log, i.e. ./logs/process65.out: ")
 
 # Open the input file for reading
 InFile = open(InFileName, 'r')
