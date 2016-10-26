@@ -5,6 +5,7 @@
 # look up the data files
 pools <- list.files(path = "data/", pattern = "process.log.tsv")
 names <- list.files(path = "data/", pattern = "names-")
+seq <- 17
 
 # create an empty dataframe
 reads <- data.frame()
@@ -28,7 +29,7 @@ for (i in 1:length(pools)){
   name <- read.delim(filename2, header = F)
   colnames(name) <- c("ligation_id", "barcode")
   read <- dplyr::left_join(data, name, by = "barcode")
-  read$seq <- 17
+  read$seq <- seq
   read$pool <- substr(filename1, 6,7)
   read$barcode <- NULL
   read$percent_retained <- read$retained/read$total_reads
