@@ -39,6 +39,17 @@ for (i in 1:length(pools)){
 # read in the old data
 old <- read.csv("data/APCL_read_data.csv", stringsAsFactors = F)
 
+# # get rid of extra characters in ligation_ids
+# # first eliminate the .Fs
+# old$ligation_id <- gsub('|.F', '', old$ligation_id)
+# # get rid of all the numbers between APCL and L that are in dDocent format
+# old$ligation_id <- gsub('APCL_[0-9]{5}L', 'APCL_L', old$ligation_id, perl=TRUE)
+# # get rid of all the numbers between APCL and L that are in regular format
+# old$ligation_id <- gsub('APCL[0-9]{2}_[0-9]{3}L', 'APCL_L', old$ligation_id, perl=TRUE)
+# # get rid of the APCL
+# old$ligation_id <- gsub('APCL_|', '', old$ligation_id, perl=TRUE)
+
+
 # add new data
 old <- rbind(old, reads)
 
