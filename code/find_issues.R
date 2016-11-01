@@ -45,6 +45,18 @@ colnames(recent) <- c("lig", "date", "sample_id")
 iss <- left_join(iss, recent, by = "sample_id")
 
 write.csv(iss, file = "data/issues_regeno.csv", row.names = F)
+# iss <- read.csv("data/issues_regeno.csv", stringsAsFactors = F)
+
+# find ligs that were regenotyped
+ligs <- iss[!is.na(iss$lig), ]
+
+# find read counts for those ligs
+reads <- dplyr::left_join(ligs, old, by = c("lig" = "ligation_id"))
+
+# only one ligation didn't have enough reads - L3008
+reads <- reads[which(reads$lig != "L3008"), ]
+
+write.csv(reads, file = "data/regenotyped_in_SEQ17.csv", row.names = F)
 
 # this block doesn't work
 # # pull the list of samples with regeno marked as Y from the database
