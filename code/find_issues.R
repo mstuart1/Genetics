@@ -58,6 +58,11 @@ reads <- reads[which(reads$lig != "L3008"), ]
 
 write.csv(reads, file = "data/regenotyped_in_SEQ17.csv", row.names = F)
 
+# remove duplicate rows
+reads[38, ] <- NA
+
+
+
 # this block doesn't work
 # # pull the list of samples with regeno marked as Y from the database
 # need_regeno <- sql("select * from ligation where regeno like 'Y';") 
