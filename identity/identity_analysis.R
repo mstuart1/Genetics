@@ -29,7 +29,6 @@ c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
 lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
-
 idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_id", all.x = T)
 
 # For Second.IDs
@@ -62,7 +61,7 @@ first <- left_join(c4, c3, by = "anem_table_id") %>% collect()
 
 ### WAIT ###
 
-second <- left_join(c4, c3, by = "anem_table_id") %>% collect()
+second <- first
 
 ### WAIT ###
 
@@ -71,6 +70,7 @@ names(second) <- paste("Second.", names(second), sep = "")
 idcsv <- left_join(idcsv, first, by = c("First.sample_id" = "First.Sample_ID"))
 idcsv <- left_join(idcsv, second, by = c("Second.sample_id" = "Second.Sample_ID"))
 
+rm(first, second, labor)
 
 idcsv$First.lat <- NA
 idcsv$First.lon <- NA
