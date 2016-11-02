@@ -153,8 +153,8 @@ for(i in 1:nrow(idcsv)){
 rm(first, second, c5, latlong)
 
 # Flag matches with same date of capture ----------------------------------
-idcsv$First.Date <- as.Date(idcsv$First.Date, "%m/%d/%Y")
-idcsv$Second.Date <- as.Date(idcsv$Second.Date, "%m/%d/%Y")
+# idcsv$First.Date <- as.Date(idcsv$First.Date, "%m/%d/%Y")
+# idcsv$Second.Date <- as.Date(idcsv$Second.Date, "%m/%d/%Y")
 
 
 idcsv$date_eval <- NA
