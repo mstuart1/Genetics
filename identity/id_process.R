@@ -114,99 +114,124 @@ multiples1 <- rbind(multiples1, multiples2)
 rm(multiples2)
 
 # make a dataframe that works by year
-wide <- multiples1
+idsimp <- multiples1
 
 # test i <- 1
 
-wide$sample_id_12 <- NA
-wide$size_12 <- NA
-wide$anem_id_12 <- NA
-wide$site_12 <- NA
+idsimp$sample_id_12 <- NA
+idsimp$size_12 <- NA
+idsimp$anem_id_12 <- NA
+idsimp$site_12 <- NA
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$First.sample_id[i]) & substr(wide$First.sample_id[i], 5,6) == "12"){
-    wide$sample_id_12[i] <- wide$First.sample_id[i]
-    wide$size_12[i] <- wide$First.Size[i]
-    wide$anem_id_12[i] <- wide$first_anem_id[i]
-    wide$site_12[i] <- wide$First.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "12"){
+    idsimp$sample_id_12[i] <- idsimp$First.sample_id[i]
+    idsimp$size_12[i] <- idsimp$First.Size[i]
+    idsimp$anem_id_12[i] <- idsimp$first_anem_id[i]
+    idsimp$site_12[i] <- idsimp$First.Name[i]
   }
 }
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$Second.sample_id[i]) & substr(wide$Second.sample_id[i], 5,6) == "12"){
-    wide$sample_id_12[i] <- wide$Second.sample_id[i]
-    wide$size_12[i] <- wide$Second.Size[i]
-    wide$anem_id_12[i] <- wide$second_anem_id[i]
-    wide$site_12[i] <- wide$Second.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "12"){
+    idsimp$sample_id_12[i] <- idsimp$Second.sample_id[i]
+    idsimp$size_12[i] <- idsimp$Second.Size[i]
+    idsimp$anem_id_12[i] <- idsimp$second_anem_id[i]
+    idsimp$site_12[i] <- idsimp$Second.Name[i]
   }
 }
 
-wide$sample_id_13 <- NA
-wide$size_13 <- NA
-wide$anem_id_13 <- NA
-wide$site_13 <- NA
+idsimp$sample_id_13 <- NA
+idsimp$size_13 <- NA
+idsimp$anem_id_13 <- NA
+idsimp$site_13 <- NA
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$First.sample_id[i]) & substr(wide$First.sample_id[i], 5,6) == "13"){
-    wide$sample_id_13[i] <- wide$First.sample_id[i]
-    wide$size_13[i] <- wide$First.Size[i]
-    wide$anem_id_13[i] <- wide$first_anem_id[i]
-    wide$site_13[i] <- wide$First.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "13"){
+    idsimp$sample_id_13[i] <- idsimp$First.sample_id[i]
+    idsimp$size_13[i] <- idsimp$First.Size[i]
+    idsimp$anem_id_13[i] <- idsimp$first_anem_id[i]
+    idsimp$site_13[i] <- idsimp$First.Name[i]
   }
 }
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$Second.sample_id[i]) & substr(wide$Second.sample_id[i], 5,6) == "13"){
-    wide$sample_id_13[i] <- wide$Second.sample_id[i]
-    wide$size_13[i] <- wide$Second.Size[i]
-    wide$anem_id_13[i] <- wide$second_anem_id[i]
-    wide$site_13[i] <- wide$Second.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "13"){
+    idsimp$sample_id_13[i] <- idsimp$Second.sample_id[i]
+    idsimp$size_13[i] <- idsimp$Second.Size[i]
+    idsimp$anem_id_13[i] <- idsimp$second_anem_id[i]
+    idsimp$site_13[i] <- idsimp$Second.Name[i]
   }
 }
 
-wide$sample_id_14 <- NA
-wide$size_14 <- NA
-wide$anem_id_14 <- NA
-wide$site_14 <- NA
+idsimp$sample_id_14 <- NA
+idsimp$size_14 <- NA
+idsimp$anem_id_14 <- NA
+idsimp$site_14 <- NA
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$First.sample_id[i]) & substr(wide$First.sample_id[i], 5,6) == "14"){
-    wide$sample_id_14[i] <- wide$First.sample_id[i]
-    wide$size_14[i] <- wide$First.Size[i]
-    wide$anem_id_14[i] <- wide$first_anem_id[i]
-    wide$site_14[i] <- wide$First.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "14"){
+    idsimp$sample_id_14[i] <- idsimp$First.sample_id[i]
+    idsimp$size_14[i] <- idsimp$First.Size[i]
+    idsimp$anem_id_14[i] <- idsimp$first_anem_id[i]
+    idsimp$site_14[i] <- idsimp$First.Name[i]
   }
 }
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$Second.sample_id[i]) & substr(wide$Second.sample_id[i], 5,6) == "14"){
-    wide$sample_id_14[i] <- wide$Second.sample_id[i]
-    wide$size_14[i] <- wide$Second.Size[i]
-    wide$anem_id_14[i] <- wide$second_anem_id[i]
-    wide$site_14[i] <- wide$Second.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "14"){
+    idsimp$sample_id_14[i] <- idsimp$Second.sample_id[i]
+    idsimp$size_14[i] <- idsimp$Second.Size[i]
+    idsimp$anem_id_14[i] <- idsimp$second_anem_id[i]
+    idsimp$site_14[i] <- idsimp$Second.Name[i]
   }
 }
 
 
-wide$sample_id_15 <- NA
-wide$size_15 <- NA
-wide$anem_id_15 <- NA
-wide$site_15 <- NA
+idsimp$sample_id_15 <- NA
+idsimp$size_15 <- NA
+idsimp$anem_id_15 <- NA
+idsimp$site_15 <- NA
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$First.sample_id[i]) & substr(wide$First.sample_id[i], 5,6) == "15"){
-    wide$sample_id_15[i] <- wide$First.sample_id[i]
-    wide$size_15[i] <- wide$First.Size[i]
-    wide$anem_id_15[i] <- wide$first_anem_id[i]
-    wide$site_15[i] <- wide$First.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "15"){
+    idsimp$sample_id_15[i] <- idsimp$First.sample_id[i]
+    idsimp$size_15[i] <- idsimp$First.Size[i]
+    idsimp$anem_id_15[i] <- idsimp$first_anem_id[i]
+    idsimp$site_15[i] <- idsimp$First.Name[i]
   }
 }
 
-for (i in 1:nrow(wide)){
-  if(!is.na(wide$Second.sample_id[i]) & substr(wide$Second.sample_id[i], 5,6) == "15"){
-    wide$sample_id_15[i] <- wide$Second.sample_id[i]
-    wide$size_15[i] <- wide$Second.Size[i]
-    wide$anem_id_15[i] <- wide$second_anem_id[i]
-    wide$site_15[i] <- wide$Second.Name[i]
+for (i in 1:nrow(idsimp)){
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "15"){
+    idsimp$sample_id_15[i] <- idsimp$Second.sample_id[i]
+    idsimp$size_15[i] <- idsimp$Second.Size[i]
+    idsimp$anem_id_15[i] <- idsimp$second_anem_id[i]
+    idsimp$site_15[i] <- idsimp$Second.Name[i]
   }
 }
+
+wide <- idsimp[ , c("sample_id_12", "size_12", "anem_id_12", "site_12", "sample_id_13", "size_13", "anem_id_13", "site_13", "sample_id_14", "size_14", "anem_id_14", "site_14", "sample_id_15", "size_15", "anem_id_15", "site_15")]
+
+# flatten multiples
+wide[44, 5:8] <- wide[45, 5:8]
+wide[45, ] <- NA
+
+wide[16, 13:16] <- wide[69, 13:16]
+wide[69, ] <- NA
+
+wide[21, ] <- NA
+
+wide[17, 13:16] <- wide[58, 13:16]
+wide[58, ] <- NA
+
+wide[13, 13:16] <- wide[78, 13:16]
+wide[78, ] <- NA
+
+wide[70, ] <- NA
+wide[57, ] <- NA
+wide[79, ] <- NA
+
+figure <- wide[ , c("size_12", "size_13", "size_14", "size_15")]
+
+# next step is to look at the data from Chris's class and see how to plot growth
