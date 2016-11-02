@@ -4,14 +4,10 @@
 
 # Set up workspace --------------------------------------------------------
 
-# Lightning
-# setwd('/Users/macair/Documents/Philippines/Genetics/identity')
 source("code/readGenepop_space.R")
-
 
 # Import cervus identity results ------------------------------------------
 idcsv <- read.csv("identity/20160908_ID.csv", stringsAsFactors = F)
-
 
 # Add metadata ------------------------------------------------------------
 
@@ -21,7 +17,7 @@ suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 
-# add lab IDs
+# add Sample IDs
 
 suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
 suppressWarnings(c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id))
@@ -210,10 +206,13 @@ for (i in 1:nrow(idcsv)){
 
 # Write output ------------------------------------------------------------
 
-# write.csv(idcsv, file = paste("identity/", Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
+write.csv(idcsv, file = paste("identity/", Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
 
 # cleanup
 rm(alldists, c5, first, lab1, lab2, latlong, second, a, b, c1, c2, c3, c4, date, datesplit, day, hour, i, i2, latlongindex, min, month, sec, time, timesplit, year)
+
+### EVERYTHING AFTER THIS POINT IS FOR REMOVING THE MATCHES FROM THE GENEPOP
+# SO IT CAN CONTINUE FOR PARENTAGE ANALYSIS.  FOR CONTINUED ID ANALYSIS, OPEN id_process.R ###
 
 # Open genepop ------------------------------------------------------------
 
