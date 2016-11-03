@@ -234,4 +234,8 @@ wide[79, ] <- NA
 
 figure <- wide[ , c("size_12", "size_13", "size_14", "size_15")]
 
+# save idsimp and wide for later
+write.csv(idsimp, file = paste("data/", Sys.Date(), "idsimp.csv", sep = ""), row.names = F)
+write.csv(wide, file = paste("data/", Sys.Date(),"wide.csv", sep = ""), row.names = F)
+
 # next step is to look at the data from Chris's class and see how to plot growth
