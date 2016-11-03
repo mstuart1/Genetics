@@ -200,9 +200,9 @@ wide[57, ] <- NA
 wide[79, ] <- NA
 
 
-# # save idsimp and idsimp for later
-# write.csv(idsimp, file = paste("data/", Sys.Date(), "idsimp.csv", sep = ""), row.names = F)
-# write.csv(idsimp, file = paste("data/", Sys.Date(),"idsimp.csv", sep = ""), row.names = F)
+# # save wide and idsimp for later
+write.csv(wide, file = paste("data/", Sys.Date(), "wide", sep = ""), row.names = F)
+write.csv(idsimp, file = paste("data/", Sys.Date(),"idsimp.csv", sep = ""), row.names = F)
 # idsimp <- read.csv("data/2016-11-03idsimp.csv", stringsAsFactors = F)
 
 wide$year_12 <- 2012
@@ -211,7 +211,52 @@ wide$year_14 <- 2014
 wide$year_15 <- 2015
 
 
-# next step is to look at the data from Chris's class and see how to plot growth
+# make long again
+# long <- reshape2::melt(wide, id.vars = c("fish", "size12", "anem12", "site12", "date12", "size13", "anem13", "site13", "date13", "site14", "date14", "anem14", "size14", "site15", "date15", "anem15", "size15", "year_12", "year_13", "year_14"  ,"year_15"), varialbe.name = "year", value.name = "sample")
+# 
+# # data1 <- melt(dm.data, id.vars = c("site", "nome"), variable.name = "year", value.name = "dm")
+
+# pull out each set of data by year
+twelve <- wide[ , grep("12", colnames(wide))]
+twelve$fish <- wide$fish
+twelve <- twelve[!is.na(twelve$sample12), ]
+colnames(twelve) <- c("sample", "size", "anem", "site", "date", "year", "fish")
+
+thirteen <- wide[ , grep("13", colnames(wide))]
+thirteen$fish <- wide$fish
+thirteen <- thirteen[!is.na(thirteen$sample13), ]
+colnames(thirteen) <- c("sample", "size", "anem", "site", "date", "year", "fish")
+
+fourteen <- wide[ , grep("14", colnames(wide))]
+fourteen$fish <- wide$fish
+fourteen <- fourteen[!is.na(fourteen$sample14), ]
+colnames(fourteen) <- c("sample", "site", "date", "anem","size", "year", "fish")
+
+fifteen <- wide[ , grep("15", colnames(wide))]
+fifteen$fish <- wide$fish
+fifteen <- fifteen[!is.na(fifteen$sample15), ]
+colnames(fifteen) <- c("sample", "site", "date", "anem","size", "year", "fish")
+
+long <- rbind(twelve, thirteen, fourteen, fifteen)
+
+
+# # this graph doesn't show anything
+# X <- subset(long, long$fish == long$fish[1])
+# X$date <- as.Date(X$date)
+# plot(X$date, X$size, type = "p", xlab = "date", ylab = "size")
+# 
+# for (i in 2:max(long$fish)){
+#   X <- subset(long, long$fish == long$fish[i])
+#   X$date <- as.Date(X$date)
+#   points(X$date, X$size, type = "p", xlab = "date", ylab = "size")
+#   
+# }
+
+# next step is to look at the data from Chris's class and see how to plot growth - points will add new data, "add" will also add new data
 plot(x = as.Date(wide$date12), y = wide$size12, type = "p")
-plot(x = idsimp$date_14, y = idsimp$size_14, type = "p")
+points(x = idsimp$date_14, y = idsimp$size_14, type = "p")
 plot(x = idsimp$)
+
+
+# make a plot by fish (the same way we did by species in Chris's class, and connect with dots and lines)
+
