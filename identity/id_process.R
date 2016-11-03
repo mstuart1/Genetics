@@ -101,50 +101,76 @@ for (i in 1:nrow(idsimp)){
     idsimp$site12[i] <- idsimp$Second.Name[i]
     idsimp$date12[i] <- idsimp$Second.Date[i]
   }
-  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "13" & is.na(idsimp$sample13[i])){
-    idsimp$sample13[i] <- idsimp$First.sample_id[i]
-    idsimp$size13[i] <- idsimp$First.Size[i]
-    idsimp$anem13[i] <- idsimp$first_anem_id[i]
-    idsimp$site13[i] <- idsimp$First.Name[i]
-    idsimp$date13[i] <- idsimp$First.Date[i]
-  }
-  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "13" & is.na(idsimp$sample13[i])){
-    idsimp$sample13[i] <- idsimp$Second.sample_id[i]
-    idsimp$size13[i] <- idsimp$Second.Size[i]
-    idsimp$anem13[i] <- idsimp$second_anem_id[i]
-    idsimp$site13[i] <- idsimp$Second.Name[i]
-    idsimp$date13[i] <- idsimp$Second.Date[i]
-  }
-  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "14" & is.na(idsimp$sample14[i])){
-    idsimp$sample14[i] <- idsimp$First.sample_id[i]
-    idsimp$size14[i] <- idsimp$First.Size[i]
-    idsimp$anem14[i] <- idsimp$first_anem_id[i]
-    idsimp$site14[i] <- idsimp$First.Name[i]
-    idsimp$date14[i] <- idsimp$First.Date[i]
-  }
-  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "14" & is.na(idsimp$sample14[i])){
-    idsimp$sample14[i] <- idsimp$Second.sample_id[i]
-    idsimp$size14[i] <- idsimp$Second.Size[i]
-    idsimp$anem14[i] <- idsimp$second_anem_id[i]
-    idsimp$site14[i] <- idsimp$Second.Name[i]
-    idsimp$date14[i] <- idsimp$Second.Date[i]
-  }
-  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "15" & is.na(idsimp$sample15[i])){
-    idsimp$sample15[i] <- idsimp$First.sample_id[i]
-    idsimp$size15[i] <- idsimp$First.Size[i]
-    idsimp$anem15[i] <- idsimp$first_anem_id[i]
-    idsimp$site15[i] <- idsimp$First.Name[i]
-    idsimp$date15[i] <- idsimp$First.Date[i]
-  }
-  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "15" & is.na(idsimp$sample15[i])){
-    idsimp$sample15[i] <- idsimp$Second.sample_id[i]
-    idsimp$size15[i] <- idsimp$Second.Size[i]
-    idsimp$anem15[i] <- idsimp$second_anem_id[i]
-    idsimp$site15[i] <- idsimp$Second.Name[i]
-    idsimp$date15[i] <- idsimp$Second.Date[i]
-  }
+}
+for (i in 1:nrow(idsimp)){
+    if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "13" & is.na(idsimp$sample13[i])){
+      idsimp$sample13[i] <- idsimp$First.sample_id[i]
+      idsimp$size13[i] <- idsimp$First.Size[i]
+      idsimp$anem13[i] <- idsimp$first_anem_id[i]
+      idsimp$site13[i] <- idsimp$First.Name[i]
+      idsimp$date13[i] <- idsimp$First.Date[i]
+    }
+    if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "13" & is.na(idsimp$sample13[i])){
+      idsimp$sample13[i] <- idsimp$Second.sample_id[i]
+      idsimp$size13[i] <- idsimp$Second.Size[i]
+      idsimp$anem13[i] <- idsimp$second_anem_id[i]
+      idsimp$site13[i] <- idsimp$Second.Name[i]
+      idsimp$date13[i] <- idsimp$Second.Date[i]
+    }
 }
 
+ idsimp$site14 <- NA
+ idsimp$date14 <- NA
+ idsimp$anem14 <- NA
+ idsimp$size14 <- NA
+ 
+ for (i in 1:nrow(idsimp)){
+   if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "14" & is.na(idsimp$sample14[i])){
+     idsimp$sample14[i] <- idsimp$First.sample_id[i]
+     idsimp$size14[i] <- idsimp$First.Size[i]
+     idsimp$anem14[i] <- idsimp$first_anem_id[i]
+     idsimp$site14[i] <- idsimp$First.Name[i]
+     idsimp$date14[i] <- idsimp$First.Date[i]
+   }
+   if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "14" & is.na(idsimp$sample14[i])){
+     idsimp$sample14[i] <- idsimp$Second.sample_id[i]
+     idsimp$size14[i] <- idsimp$Second.Size[i]
+     idsimp$anem14[i] <- idsimp$second_anem_id[i]
+     idsimp$site14[i] <- idsimp$Second.Name[i]
+     idsimp$date14[i] <- idsimp$Second.Date[i]
+   }
+ }
+ 
+ idsimp$site15 <- NA
+ idsimp$date15 <- NA
+ idsimp$anem15 <- NA
+ idsimp$size15 <- NA
+ 
+ for (i in 1:nrow(idsimp)){
+   if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "15" & is.na(idsimp$sample15[i])){
+     idsimp$sample15[i] <- idsimp$First.sample_id[i]
+     idsimp$size15[i] <- idsimp$First.Size[i]
+     idsimp$anem15[i] <- idsimp$first_anem_id[i]
+     idsimp$site15[i] <- idsimp$First.Name[i]
+     idsimp$date15[i] <- idsimp$First.Date[i]
+   }
+   if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "15" & is.na(idsimp$sample15[i])){
+     idsimp$sample15[i] <- idsimp$Second.sample_id[i]
+     idsimp$size15[i] <- idsimp$Second.Size[i]
+     idsimp$anem15[i] <- idsimp$second_anem_id[i]
+     idsimp$site15[i] <- idsimp$Second.Name[i]
+     idsimp$date15[i] <- idsimp$Second.Date[i]
+   }
+ }
+ 
+
+ twel <- grep("12", colnames(idsimp))
+ thir <- grep("13", colnames(idsimp)) 
+ four <- grep("14", colnames(idsimp))
+fif <-  grep("15", colnames(idsimp))
+ 
+wide <- idsimp[ , c(twel, thir, four, fif)]
+ 
 
 # flatten multiples
 idsimp[44, thirt] <- idsimp[45, thirt]
