@@ -67,158 +67,117 @@ for (i in 1:nrow(idsimp)){
   }
 }
 
+# create a idsimp format table to find fish that were caught in more than 2 years
+
 # test i <- 1
+# fields <- c("sample", "size", "anem", "site", "date")
+# fields1 <- NA
+# for (i in 1:length(fields)){
+#   n <- paste(fields[i], 12:15, sep = "")
+#   fields1 <- c(fields1, n)
+# }
+# fields1 <- fields1[2:21]
+# 
 
-fields <- c("sample", "size", "anem", "site", "date")
-fields1 <- NA
-for (i in 1:length(fields)){
-  n <- paste(fields[i], 12:15, sep = "")
-  fields1 <- c(fields1, n)
-}
-fields1 <- fields1[2:21]
+idsimp$sample12 <- NA
+ idsimp$sample13 <- NA
+ idsimp$sample14 <- NA
+ idsimp$sample15 <- NA
 
-wide <- data.frame(fields1)
-wide$fields2 <- NA
-wide <- reshape(wide, direction = "wide", idvar = "fields1")
 
-for (i in 1:length(fields1)){
-  wide$fields1[i] <- "a"
-}
-
-idsimp$sample_id_12 <- NA
-idsimp$size_12 <- NA
-idsimp$anem_id_12 <- NA
-idsimp$site_12 <- NA
-idsimp$date_12 <- NA
 
 for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "12"){
-    idsimp$sample_id_12[i] <- idsimp$First.sample_id[i]
-    idsimp$size_12[i] <- idsimp$First.Size[i]
-    idsimp$anem_id_12[i] <- idsimp$first_anem_id[i]
-    idsimp$site_12[i] <- idsimp$First.Name[i]
-    idsimp$date_12[i] <- idsimp$First.Date[i]
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "12" & is.na(idsimp$sample12[i])){
+    idsimp$sample12[i] <- idsimp$First.sample_id[i]
+    idsimp$size12[i] <- idsimp$First.Size[i]
+    idsimp$anem12[i] <- idsimp$first_anem_id[i]
+    idsimp$site12[i] <- idsimp$First.Name[i]
+    idsimp$date12[i] <- idsimp$First.Date[i]
+  }
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "12" & is.na(idsimp$sample12[i])){
+    idsimp$sample12[i] <- idsimp$Second.sample_id[i]
+    idsimp$size12[i] <- idsimp$Second.Size[i]
+    idsimp$anem12[i] <- idsimp$second_anem_id[i]
+    idsimp$site12[i] <- idsimp$Second.Name[i]
+    idsimp$date12[i] <- idsimp$Second.Date[i]
+  }
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "13" & is.na(idsimp$sample13[i])){
+    idsimp$sample13[i] <- idsimp$First.sample_id[i]
+    idsimp$size13[i] <- idsimp$First.Size[i]
+    idsimp$anem13[i] <- idsimp$first_anem_id[i]
+    idsimp$site13[i] <- idsimp$First.Name[i]
+    idsimp$date13[i] <- idsimp$First.Date[i]
+  }
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "13" & is.na(idsimp$sample13[i])){
+    idsimp$sample13[i] <- idsimp$Second.sample_id[i]
+    idsimp$size13[i] <- idsimp$Second.Size[i]
+    idsimp$anem13[i] <- idsimp$second_anem_id[i]
+    idsimp$site13[i] <- idsimp$Second.Name[i]
+    idsimp$date13[i] <- idsimp$Second.Date[i]
+  }
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "14" & is.na(idsimp$sample14[i])){
+    idsimp$sample14[i] <- idsimp$First.sample_id[i]
+    idsimp$size14[i] <- idsimp$First.Size[i]
+    idsimp$anem14[i] <- idsimp$first_anem_id[i]
+    idsimp$site14[i] <- idsimp$First.Name[i]
+    idsimp$date14[i] <- idsimp$First.Date[i]
+  }
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "14" & is.na(idsimp$sample14[i])){
+    idsimp$sample14[i] <- idsimp$Second.sample_id[i]
+    idsimp$size14[i] <- idsimp$Second.Size[i]
+    idsimp$anem14[i] <- idsimp$second_anem_id[i]
+    idsimp$site14[i] <- idsimp$Second.Name[i]
+    idsimp$date14[i] <- idsimp$Second.Date[i]
+  }
+  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "15" & is.na(idsimp$sample15[i])){
+    idsimp$sample15[i] <- idsimp$First.sample_id[i]
+    idsimp$size15[i] <- idsimp$First.Size[i]
+    idsimp$anem15[i] <- idsimp$first_anem_id[i]
+    idsimp$site15[i] <- idsimp$First.Name[i]
+    idsimp$date15[i] <- idsimp$First.Date[i]
+  }
+  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "15" & is.na(idsimp$sample15[i])){
+    idsimp$sample15[i] <- idsimp$Second.sample_id[i]
+    idsimp$size15[i] <- idsimp$Second.Size[i]
+    idsimp$anem15[i] <- idsimp$second_anem_id[i]
+    idsimp$site15[i] <- idsimp$Second.Name[i]
+    idsimp$date15[i] <- idsimp$Second.Date[i]
   }
 }
 
-for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "12"){
-    idsimp$sample_id_12[i] <- idsimp$Second.sample_id[i]
-    idsimp$size_12[i] <- idsimp$Second.Size[i]
-    idsimp$anem_id_12[i] <- idsimp$second_anem_id[i]
-    idsimp$site_12[i] <- idsimp$Second.Name[i]
-    idsimp$date_12[i] <- idsimp$Second.Date[i]
-  }
-}
-
-idsimp$sample_id_13 <- NA
-idsimp$size_13 <- NA
-idsimp$anem_id_13 <- NA
-idsimp$site_13 <- NA
-
-for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "13"){
-    idsimp$sample_id_13[i] <- idsimp$First.sample_id[i]
-    idsimp$size_13[i] <- idsimp$First.Size[i]
-    idsimp$anem_id_13[i] <- idsimp$first_anem_id[i]
-    idsimp$site_13[i] <- idsimp$First.Name[i]
-  }
-}
-
-for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "13"){
-    idsimp$sample_id_13[i] <- idsimp$Second.sample_id[i]
-    idsimp$size_13[i] <- idsimp$Second.Size[i]
-    idsimp$anem_id_13[i] <- idsimp$second_anem_id[i]
-    idsimp$site_13[i] <- idsimp$Second.Name[i]
-  }
-}
-
-idsimp$sample_id_14 <- NA
-idsimp$size_14 <- NA
-idsimp$anem_id_14 <- NA
-idsimp$site_14 <- NA
-
-for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "14"){
-    idsimp$sample_id_14[i] <- idsimp$First.sample_id[i]
-    idsimp$size_14[i] <- idsimp$First.Size[i]
-    idsimp$anem_id_14[i] <- idsimp$first_anem_id[i]
-    idsimp$site_14[i] <- idsimp$First.Name[i]
-  }
-}
-
-for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "14"){
-    idsimp$sample_id_14[i] <- idsimp$Second.sample_id[i]
-    idsimp$size_14[i] <- idsimp$Second.Size[i]
-    idsimp$anem_id_14[i] <- idsimp$second_anem_id[i]
-    idsimp$site_14[i] <- idsimp$Second.Name[i]
-  }
-}
-
-
-idsimp$sample_id_15 <- NA
-idsimp$size_15 <- NA
-idsimp$anem_id_15 <- NA
-idsimp$site_15 <- NA
-
-for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "15"){
-    idsimp$sample_id_15[i] <- idsimp$First.sample_id[i]
-    idsimp$size_15[i] <- idsimp$First.Size[i]
-    idsimp$anem_id_15[i] <- idsimp$first_anem_id[i]
-    idsimp$site_15[i] <- idsimp$First.Name[i]
-  }
-}
-
-for (i in 1:nrow(idsimp)){
-  if(!is.na(idsimp$Second.sample_id[i]) & substr(idsimp$Second.sample_id[i], 5,6) == "15"){
-    idsimp$sample_id_15[i] <- idsimp$Second.sample_id[i]
-    idsimp$size_15[i] <- idsimp$Second.Size[i]
-    idsimp$anem_id_15[i] <- idsimp$second_anem_id[i]
-    idsimp$site_15[i] <- idsimp$Second.Name[i]
-  }
-}
-
-wide <- idsimp[ , c("sample_id_12", "size_12", "anem_id_12", "site_12", "date_12", "sample_id_13", "size_13", "anem_id_13", "site_13", "sample_id_14", "size_14", "anem_id_14", "site_14", "sample_id_15", "size_15", "anem_id_15", "site_15")]
-twel <- grep("12", colnames(wide))
-thirt <- grep("13", colnames(wide))
-fourt <- grep("14", colnames(wide))
-fift <- grep("15", colnames(wide))
 
 # flatten multiples
-wide[44, thirt] <- wide[45, thirt]
-wide[45, ] <- NA
+idsimp[44, thirt] <- idsimp[45, thirt]
+idsimp[45, ] <- NA
 
-wide[16, fift] <- wide[69, fift]
-wide[69, ] <- NA
+idsimp[16, fift] <- idsimp[69, fift]
+idsimp[69, ] <- NA
 
-wide[21, ] <- NA
+idsimp[21, ] <- NA
 
-wide[17, fift] <- wide[58, fift]
-wide[58, ] <- NA
+idsimp[17, fift] <- idsimp[58, fift]
+idsimp[58, ] <- NA
 
-wide[13, fift] <- wide[78, fift]
-wide[78, ] <- NA
+idsimp[13, fift] <- idsimp[78, fift]
+idsimp[78, ] <- NA
 
-wide[70, ] <- NA
-wide[57, ] <- NA
-wide[79, ] <- NA
+idsimp[70, ] <- NA
+idsimp[57, ] <- NA
+idsimp[79, ] <- NA
 
 
-# # save idsimp and wide for later
+# # save idsimp and idsimp for later
 # write.csv(idsimp, file = paste("data/", Sys.Date(), "idsimp.csv", sep = ""), row.names = F)
-# write.csv(wide, file = paste("data/", Sys.Date(),"wide.csv", sep = ""), row.names = F)
-# wide <- read.csv("data/2016-11-03wide.csv", stringsAsFactors = F)
+# write.csv(idsimp, file = paste("data/", Sys.Date(),"idsimp.csv", sep = ""), row.names = F)
+# idsimp <- read.csv("data/2016-11-03idsimp.csv", stringsAsFactors = F)
 
-wide$date_12 <- 2012
-wide$date_13 <- 2013
-wide$date_14 <- 2014
-wide$date_15 <- 2015
+idsimp$date_12 <- 2012
+idsimp$date_13 <- 2013
+idsimp$date_14 <- 2014
+idsimp$date_15 <- 2015
 
 
 # next step is to look at the data from Chris's class and see how to plot growth
-plot(x = wide$date_12, y = wide$size_12, type = "p", xlim = c(2010, 2020))
-plot(x = wide$date_14, y = wide$size_14, type = "p")
-plot(x = wide$)
+plot(x = idsimp$date_12, y = idsimp$size_12, type = "p", xlim = c(2010, 2020))
+plot(x = idsimp$date_14, y = idsimp$size_14, type = "p")
+plot(x = idsimp$)
