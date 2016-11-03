@@ -57,21 +57,6 @@ idsimp$Second.Name[grep("Visca", idsimp$Second.Name)] <- "Visca"
 idsimp$Second.Name[grep("Wangag", idsimp$Second.Name)] <- "Wangag"
 idsimp$Second.Name[grep("Magbangon", idsimp$Second.Name)] <- "Magbangon"
 
-# # find sites that don't match
-# site_mismatch <- idsimp[idsimp$First.Name != idsimp$Second.Name, ]
-# 
-# # because there are 7 fish with sites that don't match, pull in distkm data
-# idsimp$distkm <- idcsv$distkm
-# site_mismatch <- idsimp[idsimp$First.Name != idsimp$Second.Name, ]
-# 
-# # all except the APCL14_437/APCL15_399786 look like they are very close together, double check site info for where the fish were caught - all are on the Magbangon/Cabatoan border, these are the same fish.
-# lat_lon_table <- data.frame(site_mismatch$First.sample_id,site_mismatch$First.lat, site_mismatch$First.lon)
-# temp <- data.frame(site_mismatch$Second.sample_id,site_mismatch$Second.lat, site_mismatch$Second.lon)
-# colnames(temp) <- colnames(lat_lon_table)
-# lat_lon_table <- rbind(lat_lon_table, temp)
-# # write to csv and import into QGIS
-# write.csv(lat_lon_table, file = "data/site_investigation.csv", row.names = F)
-
 # calculate how much a fish grew over time
 idsimp$growth <- idsimp$Second.Size - idsimp$First.Size
 
@@ -256,11 +241,18 @@ wide[57, ] <- NA
 wide[79, ] <- NA
 
 
-# save idsimp and wide for later
-write.csv(idsimp, file = paste("data/", Sys.Date(), "idsimp.csv", sep = ""), row.names = F)
-write.csv(wide, file = paste("data/", Sys.Date(),"wide.csv", sep = ""), row.names = F)
+# # save idsimp and wide for later
+# write.csv(idsimp, file = paste("data/", Sys.Date(), "idsimp.csv", sep = ""), row.names = F)
+# write.csv(wide, file = paste("data/", Sys.Date(),"wide.csv", sep = ""), row.names = F)
+# wide <- read.csv("data/2016-11-03wide.csv", stringsAsFactors = F)
 
-wide$date_12 <- as.Date(wide$date_12)
+wide$date_12 <- 2012
+wide$date_13 <- 2013
+wide$date_14 <- 2014
+wide$date_15 <- 2015
+
 
 # next step is to look at the data from Chris's class and see how to plot growth
-plot(x = wide$date_12, y = wide$size_12, type = "p")
+plot(x = wide$date_12, y = wide$size_12, type = "p", xlim = c(2010, 2020))
+plot(x = wide$date_14, y = wide$size_14, type = "p")
+plot(x = wide$)
