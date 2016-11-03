@@ -238,15 +238,99 @@ fifteen <- fifteen[!is.na(fifteen$sample15), ]
 colnames(fifteen) <- c("sample", "site", "date", "anem","size", "year", "fish")
 
 long <- rbind(twelve, thirteen, fourteen, fifteen)
+long$growth <- NA
+
+# save for later
+write.csv(long, file = paste("data/", Sys.Date(), "long.csv", sep = ""), row.names = F)
+
+# Malin wants graphs by year that show growth over 1 year
+# this code creates 
+for (i in 1:max(long$fish)){
+  X <- subset(long, long$fish == long$fish[i])
+  if(nrow(X) > 1){
+    # sort in order of year
+    X <- X[order(X$year), ]
+    if(X$year[2] == X$year[1]+1){
+      X$growth[2] <- X$size[2] - X$size[1]
+      long$growth[which(long$sample == X$sample[2])] <- X$growth[2]
+    }
+  }
+}
+twice <- subset(long, !is.na(long$growth))
+plot(twice$size, twice$growth)
+
+# repeat to account for if there are three rows in X
+for (i in 1:max(long$fish)){
+  X <- subset(long, long$fish == long$fish[i])
+  if(nrow(X) > 2){
+    # sort in order of year
+    X <- X[order(X$year), ]
+    if(X$year[3] == X$year[2]+1){
+      X$growth[3] <- X$size[3] - X$size[2]
+      long$growth[which(long$sample == X$sample[3])] <- X$growth[3]
+    }
+  }
+}
+three <- subset(long, !is.na(long$growth))
+# there was no difference in number of rows between twice and three
+
+plot(three$size, three$growth, ylab = "delta growth", xlab = "size in cm", main = "Change in one year of growth of clownfish plotted against size")
+regr <-lm(growth~size, data=three)
+summary(regr)
+abline(coef = coef(regr))
+# three plot is saved in the plots directory
+
+# next need to pull in tail color for samples with growth from database
+tail <- leyte %>% tbl("clownfish") %>% select(sample_id, col)
+
+growth <- left_join(three, tail, by = c("sample" = "sample_id"), copy = T)
+
+growth$color[growth$col == "O"] <- "#D53E4F"
+growth$color[growth$col != "O"] <- "#3288BD"
+plot(growth$size, growth$growth, ylab = "Growth (cm)", xlab = "Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= growth$color, xlim = c(4,15), ylim = c(-3, 10), pch = 16, cex = 0.75)
+regr <-lm(growth~size, data=growth)
+summary(regr)
+abline(coef = coef(regr), lty = 3)
+abline(h = 0)
+
+# the next step is to see if there is a larger fish on the anemone
+# pull all of the fish data from the database and match up anem_id and old_anem_id
+bigfish <- leyte %>% tbl("clownfish") %>% select(anem_table_id, sample_id, size) %>% collect()
+bigfish <- bigfish[!is.na(bigfish$sample_id), ]
+anems <- leyte %>% tbl("anemones") %>% filter(anem_table_id %in% bigfish$anem_table_id) %>% select(anem_table_id, anem_id, old_anem_id) %>% collect()
+
+bigfish1 <- left_join(bigfish, anems, by = "anem_table_id")
+bigfish <- bigfish1[ , c("sample_id", "anem_id", "old_anem_id")]
 
 
+# join growth and big fish
+growth1 <- left_join(growth, bigfish, by = c("sample" = "sample_id"))
+growth1$biggest <- NA
 
+# find other fish on same anemone
+bigger <- c()
+for (i in 1:nrow(growth1)){
+    X <- subset(bigfish1, bigfish1$anem_id == growth1$anem_id[i])
+    if(nrow(X) > 1){
+      # find a bigger fish
+      for (j in 1:nrow(X)){
+        if (X$size[j] > growth1$size[i]){
+          growth1$biggest[i] <- FALSE
+          bigger <- c(bigger, X$sample_id[j])
+        }
+      }
+    }
+    if(!is.na(X$old_anem_id[i])){
+      Y <- subset(bigfish, bigfish$anem_id == growth1$old_anem_id[i])
+      if(nrow(Y) > 0){
+        print(growth1$sample[i])
+      }
+    }
+}
 
-# next step is to look at the data from Chris's class and see how to plot growth - points will add new data, "add" will also add new data
-plot(x = as.Date(wide$date12), y = wide$size12, type = "p")
-points(x = idsimp$date_14, y = idsimp$size_14, type = "p")
-plot(x = idsimp$)
+# 36 fish have bigger fish on the anemone
 
-
-# make a plot by fish (the same way we did by species in Chris's class, and connect with dots and lines)
-
+# save for the night
+write.csv(growth1, file = paste("data/", Sys.Date(), "growth1.csv", sep = ""), row.names = F)
+write.csv(bigfish, file = paste("data/", Sys.Date(), "bigfish.csv", sep = ""), row.names = F)
+write.csv(bigfish1, file = paste("data/", Sys.Date(), "bigfish1.csv", sep = ""), row.names = F)
