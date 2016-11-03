@@ -67,40 +67,6 @@ for (i in 1:nrow(idsimp)){
   }
 }
 
-# hmmm <- idsimp[idsimp$growth < 0, ]
-# 
-# multiples1 <- idsimp[1, ]
-# multiples1[1, ] <- NA
-
-# find multiple instances of the same fish and assign to the same row
-# test i <- 70
-# for (i in 1:nrow(idsimp)){
-#   n <- grep(idsimp$First.sample_id[i], idsimp)
-#   if(length(n) > 1){
-#     multiples1 <- rbind(multiples1, idsimp[i, ])
-#   }
-# }
-# multiples1 <- multiples1[!is.na(multiples1$fish), ]
-# 
-# multiples2 <- idsimp[1, ]
-# multiples2[1, ] <- NA
-
-# # find multiple instances of the same fish and assign to the same row
-# # test i <- 70
-# for (i in 1:nrow(idsimp)){
-#   n <- grep(idsimp$Second.sample_id[i], idsimp)
-#   if(length(n) > 1){
-#     multiples2 <- rbind(multiples2, idsimp[i, ])
-#   }
-# }
-# multiples2 <- multiples2[!is.na(multiples2$fish), ]
-# 
-# multiples1 <- rbind(multiples1, multiples2)
-# rm(multiples2)
-# 
-# # make a dataframe that works by year
-# idsimp <- multiples1
-
 # test i <- 1
 
 fields <- c("sample", "size", "anem", "site", "date")
