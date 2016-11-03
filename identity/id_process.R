@@ -240,17 +240,7 @@ colnames(fifteen) <- c("sample", "site", "date", "anem","size", "year", "fish")
 long <- rbind(twelve, thirteen, fourteen, fifteen)
 
 
-# # this graph doesn't show anything
-# X <- subset(long, long$fish == long$fish[1])
-# X$date <- as.Date(X$date)
-# plot(X$date, X$size, type = "p", xlab = "date", ylab = "size")
-# 
-# for (i in 2:max(long$fish)){
-#   X <- subset(long, long$fish == long$fish[i])
-#   X$date <- as.Date(X$date)
-#   points(X$date, X$size, type = "p", xlab = "date", ylab = "size")
-#   
-# }
+
 
 # next step is to look at the data from Chris's class and see how to plot growth - points will add new data, "add" will also add new data
 plot(x = as.Date(wide$date12), y = wide$size12, type = "p")
