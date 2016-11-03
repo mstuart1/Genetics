@@ -83,7 +83,10 @@ idsimp$sample12 <- NA
  idsimp$sample13 <- NA
  idsimp$sample14 <- NA
  idsimp$sample15 <- NA
-
+ idsimp$size12 <- NA
+ idsimp$anem12 <- NA
+ idsimp$site12 <- NA
+ idsimp$date12 <- NA
 
 
 for (i in 1:nrow(idsimp)){
@@ -165,31 +168,36 @@ for (i in 1:nrow(idsimp)){
  
 
  twel <- grep("12", colnames(idsimp))
- thir <- grep("13", colnames(idsimp)) 
+ thirt <- grep("13", colnames(idsimp)) 
  four <- grep("14", colnames(idsimp))
-fif <-  grep("15", colnames(idsimp))
+fift <-  grep("15", colnames(idsimp))
  
-wide <- idsimp[ , c(twel, thir, four, fif)]
+wide <- idsimp[ , c(twel, thirt, four, fift)]
+wide$fish <- idsimp$fish
  
+twel <- grep("12", colnames(wide))
+thirt <- grep("13", colnames(wide)) 
+four <- grep("14", colnames(wide))
+fift <-  grep("15", colnames(wide))
 
 # flatten multiples
-idsimp[44, thirt] <- idsimp[45, thirt]
-idsimp[45, ] <- NA
+wide[44, thirt] <- wide[45, thirt]
+wide[45, ] <- NA
 
-idsimp[16, fift] <- idsimp[69, fift]
-idsimp[69, ] <- NA
+wide[16, fift] <- wide[69, fift]
+wide[69, ] <- NA
 
-idsimp[21, ] <- NA
+wide[21, ] <- NA
 
-idsimp[17, fift] <- idsimp[58, fift]
-idsimp[58, ] <- NA
+wide[17, fift] <- wide[58, fift]
+wide[58, ] <- NA
 
-idsimp[13, fift] <- idsimp[78, fift]
-idsimp[78, ] <- NA
+wide[13, fift] <- wide[78, fift]
+wide[78, ] <- NA
 
-idsimp[70, ] <- NA
-idsimp[57, ] <- NA
-idsimp[79, ] <- NA
+wide[70, ] <- NA
+wide[57, ] <- NA
+wide[79, ] <- NA
 
 
 # # save idsimp and idsimp for later
@@ -197,13 +205,13 @@ idsimp[79, ] <- NA
 # write.csv(idsimp, file = paste("data/", Sys.Date(),"idsimp.csv", sep = ""), row.names = F)
 # idsimp <- read.csv("data/2016-11-03idsimp.csv", stringsAsFactors = F)
 
-idsimp$date_12 <- 2012
-idsimp$date_13 <- 2013
-idsimp$date_14 <- 2014
-idsimp$date_15 <- 2015
+wide$year_12 <- 2012
+wide$year_13 <- 2013
+wide$year_14 <- 2014
+wide$year_15 <- 2015
 
 
 # next step is to look at the data from Chris's class and see how to plot growth
-plot(x = idsimp$date_12, y = idsimp$size_12, type = "p", xlim = c(2010, 2020))
+plot(x = as.Date(wide$date12), y = wide$size12, type = "p")
 plot(x = idsimp$date_14, y = idsimp$size_14, type = "p")
 plot(x = idsimp$)
