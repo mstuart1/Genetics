@@ -57,20 +57,20 @@ idsimp$Second.Name[grep("Visca", idsimp$Second.Name)] <- "Visca"
 idsimp$Second.Name[grep("Wangag", idsimp$Second.Name)] <- "Wangag"
 idsimp$Second.Name[grep("Magbangon", idsimp$Second.Name)] <- "Magbangon"
 
-# find sites that don't match
-site_mismatch <- idsimp[idsimp$First.Name != idsimp$Second.Name, ]
-
-# because there are 7 fish with sites that don't match, pull in distkm data
-idsimp$distkm <- idcsv$distkm
-site_mismatch <- idsimp[idsimp$First.Name != idsimp$Second.Name, ]
-
-# all except the APCL14_437/APCL15_399786 look like they are very close together, double check site info for where the fish were caught - all are on the Magbangon/Cabatoan border, these are the same fish.
-lat_lon_table <- data.frame(site_mismatch$First.sample_id,site_mismatch$First.lat, site_mismatch$First.lon)
-temp <- data.frame(site_mismatch$Second.sample_id,site_mismatch$Second.lat, site_mismatch$Second.lon)
-colnames(temp) <- colnames(lat_lon_table)
-lat_lon_table <- rbind(lat_lon_table, temp)
-# write to csv and import into QGIS
-write.csv(lat_lon_table, file = "data/site_investigation.csv", row.names = F)
+# # find sites that don't match
+# site_mismatch <- idsimp[idsimp$First.Name != idsimp$Second.Name, ]
+# 
+# # because there are 7 fish with sites that don't match, pull in distkm data
+# idsimp$distkm <- idcsv$distkm
+# site_mismatch <- idsimp[idsimp$First.Name != idsimp$Second.Name, ]
+# 
+# # all except the APCL14_437/APCL15_399786 look like they are very close together, double check site info for where the fish were caught - all are on the Magbangon/Cabatoan border, these are the same fish.
+# lat_lon_table <- data.frame(site_mismatch$First.sample_id,site_mismatch$First.lat, site_mismatch$First.lon)
+# temp <- data.frame(site_mismatch$Second.sample_id,site_mismatch$Second.lat, site_mismatch$Second.lon)
+# colnames(temp) <- colnames(lat_lon_table)
+# lat_lon_table <- rbind(lat_lon_table, temp)
+# # write to csv and import into QGIS
+# write.csv(lat_lon_table, file = "data/site_investigation.csv", row.names = F)
 
 # calculate how much a fish grew over time
 idsimp$growth <- idsimp$Second.Size - idsimp$First.Size
@@ -82,46 +82,63 @@ for (i in 1:nrow(idsimp)){
   }
 }
 
-hmmm <- idsimp[idsimp$growth < 0, ]
-
-multiples1 <- idsimp[1, ]
-multiples1[1, ] <- NA
-
-# find multiple instances of the same fish and assign to the same row
-# test i <- 70
-for (i in 1:nrow(idsimp)){
-  n <- grep(idsimp$First.sample_id[i], idsimp)
-  if(length(n) > 1){
-    multiples1 <- rbind(multiples1, idsimp[i, ])
-  }
-}
-multiples1 <- multiples1[!is.na(multiples1$fish), ]
-
-multiples2 <- idsimp[1, ]
-multiples2[1, ] <- NA
+# hmmm <- idsimp[idsimp$growth < 0, ]
+# 
+# multiples1 <- idsimp[1, ]
+# multiples1[1, ] <- NA
 
 # find multiple instances of the same fish and assign to the same row
 # test i <- 70
-for (i in 1:nrow(idsimp)){
-  n <- grep(idsimp$Second.sample_id[i], idsimp)
-  if(length(n) > 1){
-    multiples2 <- rbind(multiples2, idsimp[i, ])
-  }
-}
-multiples2 <- multiples2[!is.na(multiples2$fish), ]
+# for (i in 1:nrow(idsimp)){
+#   n <- grep(idsimp$First.sample_id[i], idsimp)
+#   if(length(n) > 1){
+#     multiples1 <- rbind(multiples1, idsimp[i, ])
+#   }
+# }
+# multiples1 <- multiples1[!is.na(multiples1$fish), ]
+# 
+# multiples2 <- idsimp[1, ]
+# multiples2[1, ] <- NA
 
-multiples1 <- rbind(multiples1, multiples2)
-rm(multiples2)
-
-# make a dataframe that works by year
-idsimp <- multiples1
+# # find multiple instances of the same fish and assign to the same row
+# # test i <- 70
+# for (i in 1:nrow(idsimp)){
+#   n <- grep(idsimp$Second.sample_id[i], idsimp)
+#   if(length(n) > 1){
+#     multiples2 <- rbind(multiples2, idsimp[i, ])
+#   }
+# }
+# multiples2 <- multiples2[!is.na(multiples2$fish), ]
+# 
+# multiples1 <- rbind(multiples1, multiples2)
+# rm(multiples2)
+# 
+# # make a dataframe that works by year
+# idsimp <- multiples1
 
 # test i <- 1
+
+fields <- c("sample", "size", "anem", "site", "date")
+fields1 <- NA
+for (i in 1:length(fields)){
+  n <- paste(fields[i], 12:15, sep = "")
+  fields1 <- c(fields1, n)
+}
+fields1 <- fields1[2:21]
+
+wide <- data.frame(fields1)
+wide$fields2 <- NA
+wide <- reshape(wide, direction = "wide", idvar = "fields1")
+
+for (i in 1:length(fields1)){
+  wide$fields1[i] <- "a"
+}
 
 idsimp$sample_id_12 <- NA
 idsimp$size_12 <- NA
 idsimp$anem_id_12 <- NA
 idsimp$site_12 <- NA
+idsimp$date_12 <- NA
 
 for (i in 1:nrow(idsimp)){
   if(!is.na(idsimp$First.sample_id[i]) & substr(idsimp$First.sample_id[i], 5,6) == "12"){
@@ -129,6 +146,7 @@ for (i in 1:nrow(idsimp)){
     idsimp$size_12[i] <- idsimp$First.Size[i]
     idsimp$anem_id_12[i] <- idsimp$first_anem_id[i]
     idsimp$site_12[i] <- idsimp$First.Name[i]
+    idsimp$date_12[i] <- idsimp$First.Date[i]
   }
 }
 
@@ -138,6 +156,7 @@ for (i in 1:nrow(idsimp)){
     idsimp$size_12[i] <- idsimp$Second.Size[i]
     idsimp$anem_id_12[i] <- idsimp$second_anem_id[i]
     idsimp$site_12[i] <- idsimp$Second.Name[i]
+    idsimp$date_12[i] <- idsimp$Second.Date[i]
   }
 }
 
@@ -211,31 +230,37 @@ for (i in 1:nrow(idsimp)){
   }
 }
 
-wide <- idsimp[ , c("sample_id_12", "size_12", "anem_id_12", "site_12", "sample_id_13", "size_13", "anem_id_13", "site_13", "sample_id_14", "size_14", "anem_id_14", "site_14", "sample_id_15", "size_15", "anem_id_15", "site_15")]
+wide <- idsimp[ , c("sample_id_12", "size_12", "anem_id_12", "site_12", "date_12", "sample_id_13", "size_13", "anem_id_13", "site_13", "sample_id_14", "size_14", "anem_id_14", "site_14", "sample_id_15", "size_15", "anem_id_15", "site_15")]
+twel <- grep("12", colnames(wide))
+thirt <- grep("13", colnames(wide))
+fourt <- grep("14", colnames(wide))
+fift <- grep("15", colnames(wide))
 
 # flatten multiples
-wide[44, 5:8] <- wide[45, 5:8]
+wide[44, thirt] <- wide[45, thirt]
 wide[45, ] <- NA
 
-wide[16, 13:16] <- wide[69, 13:16]
+wide[16, fift] <- wide[69, fift]
 wide[69, ] <- NA
 
 wide[21, ] <- NA
 
-wide[17, 13:16] <- wide[58, 13:16]
+wide[17, fift] <- wide[58, fift]
 wide[58, ] <- NA
 
-wide[13, 13:16] <- wide[78, 13:16]
+wide[13, fift] <- wide[78, fift]
 wide[78, ] <- NA
 
 wide[70, ] <- NA
 wide[57, ] <- NA
 wide[79, ] <- NA
 
-figure <- wide[ , c("size_12", "size_13", "size_14", "size_15")]
 
 # save idsimp and wide for later
 write.csv(idsimp, file = paste("data/", Sys.Date(), "idsimp.csv", sep = ""), row.names = F)
 write.csv(wide, file = paste("data/", Sys.Date(),"wide.csv", sep = ""), row.names = F)
 
+wide$date_12 <- as.Date(wide$date_12)
+
 # next step is to look at the data from Chris's class and see how to plot growth
+plot(x = wide$date_12, y = wide$size_12, type = "p")
