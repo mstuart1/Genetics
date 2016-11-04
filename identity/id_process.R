@@ -1,5 +1,10 @@
 # this script takes the output csv of identity analysis and creates a table to track fish over time.
 
+# Connect to database
+suppressMessages(library(dplyr))
+leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+
+
 # import the results of the identity_analysis script
 filename <- "identity/2016-11-02_idanalyis.csv"
 idcsv <- read.csv(filename, stringsAsFactors = F)
@@ -8,9 +13,6 @@ idcsv <- read.csv(filename, stringsAsFactors = F)
 idsimp <- idcsv[ , c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon")]
 
 # pull anem_id from database
-suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
-
 suppressWarnings(c1 <- leyte %>% tbl("anemones") %>% select(anem_table_id, anem_id, old_anem_id) %>% collect()) 
 
 idsimp <- left_join(idsimp, c1, by = c("First.anem_table_id" = "anem_table_id"))
@@ -334,3 +336,41 @@ for (i in 1:nrow(growth1)){
 write.csv(growth1, file = paste("data/", Sys.Date(), "growth1.csv", sep = ""), row.names = F)
 write.csv(bigfish, file = paste("data/", Sys.Date(), "bigfish.csv", sep = ""), row.names = F)
 write.csv(bigfish1, file = paste("data/", Sys.Date(), "bigfish1.csv", sep = ""), row.names = F)
+
+# Malin wants me to look at the PIT data and compare
+tag <- leyte %>% tbl("clownfish") %>% filter(!is.na(tagid)) %>% select(tagid, sample_id, size, col, recap) %>% collect()
+
+# Find all of the repeating tags
+for (i in 1:nrow(tag)){
+  X <- subset(long, long$fish == long$fish[i])
+  if(nrow(X) > 2){
+    # sort in order of year
+    X <- X[order(X$year), ]
+    if(X$year[3] == X$year[2]+1){
+      X$growth[3] <- X$size[3] - X$size[2]
+      long$growth[which(long$sample == X$sample[3])] <- X$growth[3]
+    }
+  }
+}
+three <- subset(long, !is.na(long$growth))
+# there was no difference in number of rows between twice and three
+
+plot(three$size, three$growth, ylab = "delta growth", xlab = "size in cm", main = "Change in one year of growth of clownfish plotted against size")
+regr <-lm(growth~size, data=three)
+summary(regr)
+abline(coef = coef(regr))
+# three plot is saved in the plots directory
+
+# next need to pull in tail color for samples with growth from database
+tail <- leyte %>% tbl("clownfish") %>% select(sample_id, col)
+
+growth <- left_join(three, tail, by = c("sample" = "sample_id"), copy = T)
+
+growth$color[growth$col == "O"] <- "#D53E4F"
+growth$color[growth$col != "O"] <- "#3288BD"
+plot(growth$size, growth$growth, ylab = "Growth (cm)", xlab = "Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= growth$color, xlim = c(4,15), ylim = c(-3, 10), pch = 16, cex = 0.75)
+regr <-lm(growth~size, data=growth)
+summary(regr)
+abline(coef = coef(regr), lty = 3)
+abline(h = 0)
+
