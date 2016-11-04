@@ -339,7 +339,7 @@ write.csv(bigfish1, file = paste("data/", Sys.Date(), "bigfish1.csv", sep = ""),
 
 ########################################################################
 # Malin wants me to look at the PIT data and compare
-tag <- leyte %>% tbl("clownfish") %>% filter(!is.na(tagid)) %>% select(tagid, sample_id, size, col, recap, anem_table_id) %>% collect()
+tag <- leyte %>% tbl("clownfish") %>% filter(!is.na(tagid)) %>% select(tagid, sample_id, size, col, recap, anem_table_id, fish_table_id) %>% collect()
 
 # find dates for anem_table_ids
 dive <- leyte %>% tbl("anemones") %>% select(anem_table_id, dive_table_id)
@@ -361,7 +361,7 @@ for (i in 1:nrow(tag)){
     X <- X[order(X$date), ]
     if(X$year[2] > X$year[1]){
       X$growth[2] <- X$size[2] - X$size[1]
-      tryCatch({tag$growth[which(tag$sample_id == X$sample_id[which(!is.na(X$sample_id))])] <- X$growth[2]}, warning = function(cond)print(i))
+      tag$growth[which(tag$fish_table_id == X$fish_table_id[2])] <- X$growth[2]
     }
   }
 }
@@ -370,20 +370,21 @@ twice <- subset(tag, !is.na(tag$growth))
 
 ############################################################################
 plot(twice$size, twice$growth, ylab = "delta growth", xlab = "size in cm", main = "Change in one year of growth of clownfish plotted against size")
-regr <-lm(growth~size, data=three)
+regr <-lm(growth~size, data=twice)
 summary(regr)
 abline(coef = coef(regr))
-# three plot is saved in the plots directory
 
-# next need to pull in tail color for samples with growth from database
-tail <- leyte %>% tbl("clownfish") %>% select(sample_id, col)
+# no difference when trying for fish caught 3 times because they were caught once in 2015 and twice in 2016.
 
-growth <- left_join(three, tail, by = c("sample" = "sample_id"), copy = T)
+# include tail color for samples with growth from database
+tail <- leyte %>% tbl("clownfish") %>% select(fish_table_id, col)
 
-growth$color[growth$col == "O"] <- "#D53E4F"
-growth$color[growth$col != "O"] <- "#3288BD"
-plot(growth$size, growth$growth, ylab = "Growth (cm)", xlab = "Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= growth$color, xlim = c(4,15), ylim = c(-3, 10), pch = 16, cex = 0.75)
-regr <-lm(growth~size, data=growth)
+twice <- left_join(twice, tail, by = "fish_table_id", copy = T)
+
+twice$color[twice$col == "O"] <- "#D53E4F"
+twice$color[twice$col != "O"] <- "#3288BD"
+plot(twice$size, twice$growth, ylab = "Growth (cm)", xlab = "Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= twice$color, xlim = c(4,15), ylim = c(-3, 10), pch = 16, cex = 0.75)
+regr <-lm(growth~size, data=twice)
 summary(regr)
 abline(coef = coef(regr), lty = 3)
 abline(h = 0)
