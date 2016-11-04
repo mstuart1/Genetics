@@ -337,25 +337,39 @@ write.csv(growth1, file = paste("data/", Sys.Date(), "growth1.csv", sep = ""), r
 write.csv(bigfish, file = paste("data/", Sys.Date(), "bigfish.csv", sep = ""), row.names = F)
 write.csv(bigfish1, file = paste("data/", Sys.Date(), "bigfish1.csv", sep = ""), row.names = F)
 
+########################################################################
 # Malin wants me to look at the PIT data and compare
-tag <- leyte %>% tbl("clownfish") %>% filter(!is.na(tagid)) %>% select(tagid, sample_id, size, col, recap) %>% collect()
+tag <- leyte %>% tbl("clownfish") %>% filter(!is.na(tagid)) %>% select(tagid, sample_id, size, col, recap, anem_table_id) %>% collect()
 
-# Find all of the repeating tags
+# find dates for anem_table_ids
+dive <- leyte %>% tbl("anemones") %>% select(anem_table_id, dive_table_id)
+suppressWarnings(date <- leyte %>% tbl("diveinfo") %>% select(id, date))
+date <- left_join(dive, date, by = c("dive_table_id" = "id"))
+tag <- left_join(tag, date, by = "anem_table_id", copy = T)
+tag$dive_table_id <- NULL
+tag$id <- NULL
+tag$anem_table_id <- NULL
+tag$growth <- NA
+
+tag$year <- substr(tag$date, 1, 4)
+
+# Find all of the repeating tags test i <- 1
 for (i in 1:nrow(tag)){
-  X <- subset(long, long$fish == long$fish[i])
-  if(nrow(X) > 2){
+  X <- subset(tag, tag$tagid == tag$tagid[i])
+  if(nrow(X) > 1){
     # sort in order of year
-    X <- X[order(X$year), ]
-    if(X$year[3] == X$year[2]+1){
-      X$growth[3] <- X$size[3] - X$size[2]
-      long$growth[which(long$sample == X$sample[3])] <- X$growth[3]
+    X <- X[order(X$date), ]
+    if(X$year[2] > X$year[1]){
+      X$growth[2] <- X$size[2] - X$size[1]
+      tryCatch({tag$growth[which(tag$sample_id == X$sample_id[which(!is.na(X$sample_id))])] <- X$growth[2]}, warning = function(cond)print(i))
     }
   }
 }
-three <- subset(long, !is.na(long$growth))
+twice <- subset(tag, !is.na(tag$growth))
 # there was no difference in number of rows between twice and three
 
-plot(three$size, three$growth, ylab = "delta growth", xlab = "size in cm", main = "Change in one year of growth of clownfish plotted against size")
+############################################################################
+plot(twice$size, twice$growth, ylab = "delta growth", xlab = "size in cm", main = "Change in one year of growth of clownfish plotted against size")
 regr <-lm(growth~size, data=three)
 summary(regr)
 abline(coef = coef(regr))
