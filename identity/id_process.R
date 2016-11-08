@@ -10,24 +10,18 @@ filename <- "identity/2016-11-02_idanalyis.csv"
 idcsv <- read.csv(filename, stringsAsFactors = F)
 
 # strip down to sample_id and field data
-idsimp <- idcsv[ , c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon")]
+idsimp <- idcsv[ , c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon", "First.ID", "Second.ID")]
 
 # pull anem_id from database
 suppressWarnings(c1 <- leyte %>% tbl("anemones") %>% select(anem_table_id, anem_id, old_anem_id) %>% collect()) 
 
 idsimp <- left_join(idsimp, c1, by = c("First.anem_table_id" = "anem_table_id"))
-colnames(idsimp) <- c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon", "first_anem_id", "first_old_anem_id")
+colnames(idsimp) <- c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon", "First.ID", "Second.ID", "first_anem_id", "first_old_anem_id")
 
 idsimp <- left_join(idsimp, c1, by = c("Second.anem_table_id" = "anem_table_id"))
-colnames(idsimp) <- c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon", "first_anem_id", "first_old_anem_id", "second_anem_id", "second_old_anem_id")
+colnames(idsimp) <- c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon", "First.ID", "Second.ID", "first_anem_id", "first_old_anem_id", "second_anem_id", "second_old_anem_id")
 
 rm(c1)
-
-# convert all anemone numbers to same digit format
-idsimp$first_anem_id <- as.numeric(idsimp$first_anem_id)
-idsimp$first_old_anem_id <- as.numeric(idsimp$first_old_anem_id)
-idsimp$second_anem_id <- as.numeric(idsimp$second_anem_id)
-idsimp$second_old_anem_id <- as.numeric(idsimp$second_old_anem_id)
 
 # add row numbers 
 idsimp$fish <- 1:nrow(idsimp)
@@ -58,6 +52,7 @@ idsimp$Second.Name[grep("Sitio Baybayon", idsimp$Second.Name)] <- "Sitio Baybayo
 idsimp$Second.Name[grep("Visca", idsimp$Second.Name)] <- "Visca"
 idsimp$Second.Name[grep("Wangag", idsimp$Second.Name)] <- "Wangag"
 idsimp$Second.Name[grep("Magbangon", idsimp$Second.Name)] <- "Magbangon"
+
 
 # calculate how much a fish grew over time
 idsimp$growth <- idsimp$Second.Size - idsimp$First.Size
@@ -203,8 +198,8 @@ wide[79, ] <- NA
 
 
 # # save wide and idsimp for later
-write.csv(wide, file = paste("data/", Sys.Date(), "wide", sep = ""), row.names = F)
-write.csv(idsimp, file = paste("data/", Sys.Date(),"idsimp.csv", sep = ""), row.names = F)
+# write.csv(wide, file = paste("data/", Sys.Date(), "wide", sep = ""), row.names = F)
+# write.csv(idsimp, file = paste("data/", Sys.Date(),"idsimp.csv", sep = ""), row.names = F)
 # idsimp <- read.csv("data/2016-11-03idsimp.csv", stringsAsFactors = F)
 
 wide$year_12 <- 2012
@@ -243,7 +238,8 @@ long <- rbind(twelve, thirteen, fourteen, fifteen)
 long$growth <- NA
 
 # save for later
-write.csv(long, file = paste("data/", Sys.Date(), "long.csv", sep = ""), row.names = F)
+# write.csv(long, file = paste("data/", Sys.Date(), "long.csv", sep = ""), row.names = F)
+long <- read.csv("data/2016-11-03long.csv", stringsAsFactors = F)
 
 # Malin wants graphs by year that show growth over 1 year
 # this code creates 
@@ -332,10 +328,10 @@ for (i in 1:nrow(growth1)){
 
 # 36 fish have bigger fish on the anemone
 
-# save for the night
-write.csv(growth1, file = paste("data/", Sys.Date(), "growth1.csv", sep = ""), row.names = F)
-write.csv(bigfish, file = paste("data/", Sys.Date(), "bigfish.csv", sep = ""), row.names = F)
-write.csv(bigfish1, file = paste("data/", Sys.Date(), "bigfish1.csv", sep = ""), row.names = F)
+# # save for the night
+# write.csv(growth1, file = paste("data/", Sys.Date(), "growth1.csv", sep = ""), row.names = F)
+# write.csv(bigfish, file = paste("data/", Sys.Date(), "bigfish.csv", sep = ""), row.names = F)
+# write.csv(bigfish1, file = paste("data/", Sys.Date(), "bigfish1.csv", sep = ""), row.names = F)
 
 ########################################################################
 # Malin wants me to look at the PIT data and compare
@@ -377,9 +373,9 @@ abline(coef = coef(regr))
 # no difference when trying for fish caught 3 times because they were caught once in 2015 and twice in 2016.
 
 # include tail color for samples with growth from database
-tail <- leyte %>% tbl("clownfish") %>% select(fish_table_id, col)
+# tail <- leyte %>% tbl("clownfish") %>% select(fish_table_id, col)
 
-twice <- left_join(twice, tail, by = "fish_table_id", copy = T)
+# twice <- left_join(twice, tail, by = "fish_table_id", copy = T)
 
 twice$color[twice$col == "O"] <- "#D53E4F"
 twice$color[twice$col != "O"] <- "#3288BD"
@@ -389,3 +385,184 @@ summary(regr)
 abline(coef = coef(regr), lty = 3)
 abline(h = 0)
 
+#############################################
+# 2016-11-08 the difference with Malin's graphs was that he plotted initial size and subsequent growth and I plotted final size and overall growth
+
+# plotting Malin's way
+long <- read.csv("data/2016-11-03long.csv", stringsAsFactors = F)
+
+# Malin wants graphs by year that show growth over 1 year
+# for all of the fish that were recaptured
+for (i in 1:max(long$fish)){
+  # pull out all of the rows with matching fish numbers
+  X <- subset(long, long$fish == long$fish[i])
+  # if the fish was caught in more than one year
+  if(nrow(X) > 1){
+    # sort in order of year
+    X <- X[order(X$year), ]
+    # if there is only one year separating the measurements
+    if(X$year[2] == X$year[1]+1){
+      # assign growth as the second measurement minus the first
+      X$growth[1] <- X$size[2] - X$size[1]
+      # assign the growth value to the table of all fish to the first measurement
+      long$growth[which(long$sample == X$sample[1])] <- X$growth[1]
+    }
+  }
+}
+# all fish caught twice (68 fish)
+twice <- subset(long, !is.na(long$growth))
+plot(twice$size, twice$growth)
+
+# repeat to account for if there are three rows in X
+for (i in 1:max(long$fish)){
+  X <- subset(long, long$fish == long$fish[i])
+  if(nrow(X) > 2){
+    # sort in order of year
+    X <- X[order(X$year), ]
+    if(X$year[3] == X$year[2]+1){
+      X$growth[2] <- X$size[3] - X$size[2]
+      long$growth[which(long$sample == X$sample[2])] <- X$growth[2]
+    }
+  }
+}
+three <- subset(long, !is.na(long$growth))
+# 72 fish - 68 fish = 4 fish were caught 3 times between 2012 and 2015.
+
+plot(three$size, three$growth, ylab = "delta growth", xlab = "size in cm", main = "Change in one year of growth of clownfish plotted against size")
+regr <-lm(growth~size, data=three)
+summary(regr)
+abline(coef = coef(regr))
+abline(h=0)
+# three plot is saved in the plots directory
+
+tail <- leyte %>% tbl("clownfish") %>% select(sample_id, col)
+
+three <- left_join(three, tail, by = c("sample" = "sample_id"), copy = T)
+
+three$color[three$col == "O"] <- "#D53E4F"
+three$color[three$col != "O"] <- "#3288BD"
+plot(three$size, three$growth, ylab = "Growth (cm)", xlab = "Initial Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= three$color, xlim = c(0,15), ylim = c(-3, 10), pch = 16, cex = 0.75)
+regr <-lm(growth~size, data=three)
+summary(regr)
+abline(coef = coef(regr), lty = 3)
+abline(h = 0)
+
+# the next step is to see if there is a larger fish on the anemone
+# pull all of the fish data from the database and match up anem_id and old_anem_id
+bigfish <- leyte %>% tbl("clownfish") %>% select(anem_table_id, sample_id, size) %>% collect()
+# remove all fish without a sample ID
+bigfish <- bigfish[!is.na(bigfish$sample_id), ]
+# pull in anemone id info
+anems <- leyte %>% tbl("anemones") %>% filter(anem_table_id %in% bigfish$anem_table_id) %>% select(anem_table_id, anem_id, old_anem_id) %>% collect()
+
+# connect sample ids and anem ids
+bigfish1 <- left_join(bigfish, anems, by = "anem_table_id")
+# reduce number of columns
+bigfish <- bigfish1[ , c("sample_id", "anem_id", "old_anem_id")]
+
+# join growth and big fish
+three1 <- left_join(three, bigfish, by = c("sample" = "sample_id"))
+
+# create a column for biggest fish
+three1$biggest <- NA
+
+# find other fish on same anemone
+
+# create an empty data frame
+bigger <- c()
+
+# for all of the fish in the growth analysis
+for (i in 1:nrow(three1)){
+  # pull all of the rows from all fish who share an anemone id
+  X <- subset(bigfish1, bigfish1$anem_id == three1$anem_id[i])
+  # if there is more than one fish on that anemone
+  if(nrow(X) > 1){
+    # find a bigger fish
+    for (j in 1:nrow(X)){
+      # if this fish is bigger than our recaptured fish
+      if (X$size[j] > three1$size[i]){
+        # mark our recaputred fish as not biggest
+        three1$biggest[i] <- FALSE
+        # put the bigger fish into a dataframe
+        bigger <- c(bigger, X$sample_id[j])
+      }
+    }
+  }
+  if(!is.na(X$old_anem_id[i])){
+    Y <- subset(bigfish, bigfish$anem_id == three1$old_anem_id[i])
+    if(nrow(Y) > 0){
+      print(three1$sample[i])
+    }
+  }
+}
+
+# 36 fish have bigger fish on the anemone
+library(RColorBrewer)
+colors <- brewer.pal(n = 11, "Spectral")
+display.brewer.pal(n = 11, "Spectral")
+colors
+
+three1$color[three1$col == "O"] <- "#66C2A5"
+three1$color[three1$col != "O"] <- "#F46D43"
+three1$color[three$col == "O" & three1$biggest == "FALSE"] <- "#9E0142"
+three1$color[three$col != "O" & three1$biggest == "FALSE"] <- "#5E4FA2"
+
+
+plot(three$size, three1$growth, ylab = "Growth (cm)", xlab = "Initial Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= three1$color, xlim = c(0,15), ylim = c(-3, 10), pch = 16, cex = 0.75)
+regr <-lm(growth~size, data=three1)
+summary(regr)
+abline(coef = coef(regr), lty = 3)
+abline(h = 0)
+legend("topleft", legend = c("Male Biggest", "Female Biggest", "Male", "Female"), fill = c("#5E4FA2", "#9E0142", "#66C2A5", "#F46D43" ), cex = 0.75, bty = "n")
+
+########################################################
+# plot the growth of a fish 
+
+# create a list of colors for the fish
+spectral <- colorRampPalette(brewer.pal(n = 11, name = "Spectral"))(max(long$fish))
+plot(1:max(long$fish), rep(1,max(long$fish)), pch = 15, cex = 50, col = spectral)
+
+# make a fake graph to hold the data (have to do this so the x axis is long enough)
+i <- 43
+X <- subset(long, long$fish == long$fish[i])
+X[4, ] <- c("APCL12_fake", 10, 0, "Tamakin Fake", "2012-05-01", 2012, 16, NA)
+X$date <- as.Date(X$date)
+X <- X[order(X$date), ]
+
+plot(X$date, X$size, ylab = "Size (cm)", xlab = "Date", type = "b", col= "white", pch = 16, bty = "l", ylim = c(0, 15))
+
+# take a look at fish that were caught more than twice
+
+for (i in 1:max(long$fish)){
+  X <- subset(long, long$fish == long$fish[i])
+  if(nrow(X) > 2){
+    X$date <- as.Date(X$date)
+    points(X$date, X$size, col= spectral[i], type = "b", pch = 16)
+  }
+}
+
+# it looks like once fish get larger than 5cm, they don't grow much.  Look at just fish smaller than 5 cm, except APCL12_189/APCL13_060 (fish 49).  This fish is small and stays small.  
+for (i in 1:max(long$fish)){
+  X <- subset(long, long$fish == long$fish[i])
+  if(X$size[1] <= 5){
+    # print(i)
+    X$date <- as.Date(X$date)
+    points(X$date, X$size, col= spectral[i], type = "b", pch = 16)
+  }
+}
+
+# all of the less than 5cm fish have lines with a slope
+
+# clear graph
+# for fish larger than 5cm
+for (i in 1:max(long$fish)){
+  X <- subset(long, long$fish == long$fish[i])
+  if(X$size[1] >= 5){
+    X$date <- as.Date(X$date)
+    points(X$date, X$size, col= spectral[i], type = "b", pch = 16)
+  }
+}
+
+# lots of these are horizontal lines except for the 2014-2015 data
+
+i <- 9
