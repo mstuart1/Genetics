@@ -53,10 +53,10 @@ rm(lab1, lab2)
 leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
 
 
-suppressWarnings(c1 <- leyte %>% tbl("diveinfo") %>% select(id, Date, Name))
+suppressWarnings(c1 <- leyte %>% tbl("diveinfo") %>% select(id, date, name))
 suppressWarnings(c2 <- leyte %>% tbl("anemones") %>% select(dive_table_id, anem_table_id, ObsTime))
 c3 <- left_join(c2, c1, by = c("dive_table_id" = "id"))
-suppressWarnings(c4 <- tbl(leyte, sql("SELECT fish_table_id, anem_table_id, Sample_ID, Size FROM clownfish where Sample_ID is not NULL")))
+suppressWarnings(c4 <- tbl(leyte, sql("SELECT fish_table_id, anem_table_id, sample_id, Size FROM clownfish where sample_id is not NULL")))
 first <- left_join(c4, c3, by = "anem_table_id") %>% collect()
 
 ### WAIT ###
@@ -67,8 +67,8 @@ second <- first
 
 names(first) <- paste("First.", names(first), sep = "")
 names(second) <- paste("Second.", names(second), sep = "")
-idcsv <- left_join(idcsv, first, by = c("First.sample_id" = "First.Sample_ID"))
-idcsv <- left_join(idcsv, second, by = c("Second.sample_id" = "Second.Sample_ID"))
+idcsv <- left_join(idcsv, first, by = c("First.sample_id" = "First.sample_id"))
+idcsv <- left_join(idcsv, second, by = c("Second.sample_id" = "Second.sample_id"))
 
 rm(first, second, labor)
 
@@ -84,7 +84,7 @@ latlong <- leyte %>% tbl("GPX") %>% collect()
 # Add lat long for first.id -----------------------------------------------
 for(i in 1:nrow(idcsv)){
   #Get date and time information for the anemone
-  date <- as.character(idcsv$First.Date[i])
+  date <- as.character(idcsv$First.date[i])
   datesplit <- strsplit(date,"-", fixed = T)[[1]]
   year <- as.numeric(datesplit[1])
   month <- as.numeric(datesplit[2])
@@ -118,7 +118,7 @@ for(i in 1:nrow(idcsv)){
 # Add lat long for second.id ----------------------------------------------
 for(i in 1:nrow(idcsv)){
   #Get date and time information for the anemone
-  date <- as.character(idcsv$Second.Date[i])
+  date <- as.character(idcsv$Second.date[i])
   datesplit <- strsplit(date,"-", fixed = T)[[1]]
   year <- as.numeric(datesplit[1])
   month <- as.numeric(datesplit[2])
@@ -153,14 +153,14 @@ for(i in 1:nrow(idcsv)){
 rm(first, second, c5, latlong)
 
 # Flag matches with same date of capture ----------------------------------
-# idcsv$First.Date <- as.Date(idcsv$First.Date, "%m/%d/%Y")
-# idcsv$Second.Date <- as.Date(idcsv$Second.Date, "%m/%d/%Y")
+# idcsv$First.date <- as.Date(idcsv$First.date, "%m/%d/%Y")
+# idcsv$Second.date <- as.Date(idcsv$Second.date, "%m/%d/%Y")
 
 
 idcsv$date_eval <- NA
 for(i in 1:nrow(idcsv)){
-  a <- idcsv$First.Date[i]
-  b <- idcsv$Second.Date[i]
+  a <- idcsv$First.date[i]
+  b <- idcsv$Second.date[i]
   if (a == b & !is.na(a) & !is.na(b)){
     idcsv$date_eval[i] <- "FAIL"
   }
@@ -188,7 +188,7 @@ for(i in 1:nrow(idcsv)){
 
 idcsv$size_eval <- NA
 for (i in 1:nrow(idcsv)){
-  if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] < idcsv$Second.Date[i]) {
+  if(!is.na(idcsv$First.date[i]) & !is.na(idcsv$Second.date[i])  & idcsv$First.date[i] < idcsv$Second.date[i]) {
     if(!is.na(idcsv$First.Size[i]) & !is.na(idcsv$Second.Size[i]) & (idcsv$First.Size[i] - 1.5) > idcsv$Second.Size[i]){
       idcsv$size_eval[i] <- "FAIL"
     }
@@ -196,7 +196,7 @@ for (i in 1:nrow(idcsv)){
 }
   
 for (i in 1:nrow(idcsv)){
-  if(!is.na(idcsv$First.Date[i]) & !is.na(idcsv$Second.Date[i])  & idcsv$First.Date[i] > idcsv$Second.Date[i]) {
+  if(!is.na(idcsv$First.date[i]) & !is.na(idcsv$Second.date[i])  & idcsv$First.date[i] > idcsv$Second.date[i]) {
     if(!is.na(idcsv$First.Size[i]) & (idcsv$First.Size[i] + 1.5) < idcsv$Second.Size[i]){
       idcsv$size_eval[i] <- "FAIL"
     }
