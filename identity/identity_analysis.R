@@ -29,13 +29,13 @@ c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
 lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
-idcsv <- merge(idcsv, lab1, by.x = "First.ID", by.y = "First.ligation_id", all.x = T)
+idcsv <- left_join(idcsv, lab1, by = c("First.ID" = "First.ligation_id"))
 
 # For Second.IDs
 lab2 <- c5
 names(lab2) <- paste("Second.", names(lab2), sep = "")
 
-idcsv <- merge(idcsv, lab2, by.x = "Second.ID", by.y = "Second.ligation_id", all.x = T)
+idcsv <- left_join(idcsv, lab2, by = c("Second.ID" = "Second.ligation_id"))
 
 
 # check proportion of matches/mismatches
