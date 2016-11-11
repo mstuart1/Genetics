@@ -373,19 +373,22 @@ plot(twice$size, twice$growth, ylab = "delta growth", xlab = "size in cm", main 
 regr <-lm(growth~size, data=twice)
 summary(regr)
 abline(coef = coef(regr))
+abline(h = 0)
 
 # no difference when trying for fish caught 3 times because they were caught once in 2015 and twice in 2016.
 
-# include tail color for samples with growth from database
-tail <- leyte %>% tbl("clownfish") %>% select(fish_table_id, col)
-
-twice <- left_join(twice, tail, by = "fish_table_id", copy = T)
+# # include tail color for samples with growth from database
+# tail <- leyte %>% tbl("clownfish") %>% select(fish_table_id, col)
+# 
+# twice <- left_join(twice, tail, by = "fish_table_id", copy = T)
 
 twice$color[twice$col == "O"] <- "#D53E4F"
 twice$color[twice$col != "O"] <- "#3288BD"
-plot(twice$size, twice$growth, ylab = "Growth (cm)", xlab = "Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= twice$color, xlim = c(4,15), ylim = c(-3, 10), pch = 16, cex = 0.75)
+
+plot(twice$size, twice$growth, ylab = "Growth (cm)", xlab = "Size (cm)", main = "Change in one year of growth of clownfish plotted against size", col= twice$color, xlim = c(4,15), ylim = c(-3, 10), pch = 16, cex = 0.75, bty = "l")
 regr <-lm(growth~size, data=twice)
 summary(regr)
 abline(coef = coef(regr), lty = 3)
 abline(h = 0)
+legend("topleft", legend = c("Female", "Male"), fill = c("#D53E4F", "#3288BD"), cex = 1, bty = "n")
 
