@@ -206,7 +206,7 @@ for (i in 1:nrow(idcsv)){
 
 # Write output ------------------------------------------------------------
 
-write.csv(idcsv, file = paste("identity/", Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
+write.csv(idcsv, file = paste("data/", Sys.Date(), "_idanalyis.csv", sep = ""), row.names = F)
 
 # cleanup
 rm(alldists, c5, first, lab1, lab2, latlong, second, a, b, c1, c2, c3, c4, date, datesplit, day, hour, i, i2, latlongindex, min, month, sec, time, timesplit, year)
