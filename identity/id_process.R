@@ -2,7 +2,7 @@
 
 # Connect to database
 suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("./myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 
 # import the results of the identity_analysis script
