@@ -2,7 +2,10 @@
 
 # Connect to database
 suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("./myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+
+
+# Initial Setup -----------------------------------------------------------
 
 
 # import the results of the identity_analysis script used to remove recaptured fish from parentage
@@ -221,6 +224,11 @@ long$growth <- NA
 # write.csv(long, file = paste("data/", Sys.Date(), "long.csv", sep = ""), row.names = F)
 # long <- read.csv("data/2016-11-03long.csv", stringsAsFactors = F)
 
+
+
+# GROWTH ------------------------------------------------------------------
+# read in "long" data file
+
 ################################################################
 #############           GROWTH           #######################
 
@@ -367,15 +375,10 @@ abline(h = 0)
 
 # no difference when trying for fish caught 3 times because they were caught once in 2015 and twice in 2016.
 
-<<<<<<< HEAD
-# # include tail color for samples with growth from database
-# tail <- leyte %>% tbl("clownfish") %>% select(fish_table_id, col)
-# 
-=======
+
 # include tail color for samples with growth from database
 # tail <- leyte %>% tbl("clownfish") %>% select(fish_table_id, col)
 
->>>>>>> 53af87be46b441b541e6a20853f50132541df814
 # twice <- left_join(twice, tail, by = "fish_table_id", copy = T)
 
 twice$color[twice$col == "O"] <- "#D53E4F"
@@ -388,11 +391,16 @@ abline(coef = coef(regr), lty = 3)
 abline(h = 0)
 legend("topleft", legend = c("Female", "Male"), fill = c("#D53E4F", "#3288BD"), cex = 1, bty = "n")
 
+
+
+# plotting growth against initial size ------------------------------------
+
+
 #############################################
 # 2016-11-08 the difference with Malin's graphs was that he plotted initial size and subsequent growth and I plotted final size and overall growth
 
 # plotting Malin's way
-long <- read.csv("data/2016-11-03long.csv", stringsAsFactors = F)
+long <- read.csv("data/2016-11-14long.csv", stringsAsFactors = F)
 
 # Malin wants graphs by year that show growth over 1 year
 # for all of the fish that were recaptured
