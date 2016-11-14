@@ -505,8 +505,8 @@ colors <- brewer.pal(n = 11, "Spectral")
 display.brewer.pal(n = 11, "Spectral")
 colors
 
-three1$color[three1$col == "O"] <- "#66C2A5"
-three1$color[three1$col != "O"] <- "#F46D43"
+three1$color[three1$col == "O"] <- "#F46D43"
+three1$color[three1$col != "O"] <- "#66C2A5"
 three1$color[three$col == "O" & three1$biggest == "FALSE"] <- "#9E0142"
 three1$color[three$col != "O" & three1$biggest == "FALSE"] <- "#5E4FA2"
 
