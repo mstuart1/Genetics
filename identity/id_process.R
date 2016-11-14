@@ -2,11 +2,12 @@
 
 # Connect to database
 suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 
-# import the results of the identity_analysis script
+# import the results of the identity_analysis script used to remove recaptured fish from parentage
 filename <- "identity/2016-11-02_idanalyis.csv"
+
 idcsv <- read.csv(filename, stringsAsFactors = F)
 
 # strip down to sample_id and field data
@@ -54,27 +55,7 @@ idsimp$Second.Name[grep("Wangag", idsimp$Second.Name)] <- "Wangag"
 idsimp$Second.Name[grep("Magbangon", idsimp$Second.Name)] <- "Magbangon"
 
 
-# calculate how much a fish grew over time
-idsimp$growth <- idsimp$Second.Size - idsimp$First.Size
-
-# test i <- 11
-for (i in 1:nrow(idsimp)){
-  if(idsimp$Second.Date[i] < idsimp$First.Date[i]){
-    idsimp$growth[i] <- abs(idsimp$growth[i])
-  }
-}
-
-# create a idsimp format table to find fish that were caught in more than 2 years
-
-# test i <- 1
-# fields <- c("sample", "size", "anem", "site", "date")
-# fields1 <- NA
-# for (i in 1:length(fields)){
-#   n <- paste(fields[i], 12:15, sep = "")
-#   fields1 <- c(fields1, n)
-# }
-# fields1 <- fields1[2:21]
-# 
+# widen the table to find fish that were caught in more than 2 years
 
 idsimp$sample12 <- NA
  idsimp$sample13 <- NA
@@ -209,9 +190,6 @@ wide$year_15 <- 2015
 
 
 # make long again
-# long <- reshape2::melt(wide, id.vars = c("fish", "size12", "anem12", "site12", "date12", "size13", "anem13", "site13", "date13", "site14", "date14", "anem14", "size14", "site15", "date15", "anem15", "size15", "year_12", "year_13", "year_14"  ,"year_15"), varialbe.name = "year", value.name = "sample")
-# 
-# # data1 <- melt(dm.data, id.vars = c("site", "nome"), variable.name = "year", value.name = "dm")
 
 # pull out each set of data by year
 twelve <- wide[ , grep("12", colnames(wide))]
@@ -237,12 +215,28 @@ colnames(fifteen) <- c("sample", "site", "date", "anem","size", "year", "fish")
 long <- rbind(twelve, thirteen, fourteen, fifteen)
 long$growth <- NA
 
+# long is a table with a fish id number for each fish, which is repeated every time that fish was caught
+
 # save for later
 # write.csv(long, file = paste("data/", Sys.Date(), "long.csv", sep = ""), row.names = F)
-long <- read.csv("data/2016-11-03long.csv", stringsAsFactors = F)
+# long <- read.csv("data/2016-11-03long.csv", stringsAsFactors = F)
+
+################################################################
+#############           GROWTH           #######################
+
+# # calculate how much a fish grew over time
+# idsimp$growth <- idsimp$Second.Size - idsimp$First.Size
+# 
+# # test i <- 11
+# for (i in 1:nrow(idsimp)){
+#   if(idsimp$Second.Date[i] < idsimp$First.Date[i]){
+#     idsimp$growth[i] <- abs(idsimp$growth[i])
+#   }
+# }
+
 
 # Malin wants graphs by year that show growth over 1 year
-# this code creates 
+# this code adds a growth number to the most recent catch of the fish, showing how much it grew in 1 year
 for (i in 1:max(long$fish)){
   X <- subset(long, long$fish == long$fish[i])
   if(nrow(X) > 1){
@@ -574,4 +568,3 @@ for (i in 1:max(long$fish)){
 
 # lots of these are horizontal lines except for the 2014-2015 data
 
-i <- 9
