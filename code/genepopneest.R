@@ -51,7 +51,7 @@ largedf$year <- substr(largedf$sample_id, 5, 6)
 
 # make a genepop for the desired year
 
-geno <- subset(largedf, year == 13)
+geno <- subset(largedf, year == 14)
 
 # remove extra columns from data table
 geno$sample_id <- NULL
@@ -75,6 +75,6 @@ for (i in 1:nrow(geno)){
 
 out <- c(msg, loci, 'pop', sample)
 
-write.table(out, file = paste("data/",Sys.Date(), '_13_geno.genepop', sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE) # won't let me use header=FALSE - use col.names instead of header
+write.table(out, file = paste("data/",Sys.Date(), '_14_geno.gen', sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE) # won't let me use header=FALSE - use col.names instead of header
 
 
