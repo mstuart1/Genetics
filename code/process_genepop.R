@@ -1,21 +1,13 @@
 # This script is written to take the filtered genepop file from dDocent and 1) strip any named samples down to pure ligation number, 2) identify and remove re-genotyped samples based on number of loci (SNPs), 3) generate a new genepop file to be fed to cervus for identification of recaptures.
 
 # Set up working directory ---------------------------------------------
-
-# # Mr. Whitmore
-# setwd('/Users/michelle/Google Drive/Pinsky Lab/Cervus/Michelle\'s R codes/Genetics/rosetta stone genepop')
-# source('/Users/michelle/Google Drive/Pinsky Lab/Cervus/Michelle\'s R codes/Genetics/code/readGenepop_space.R')
-
-# Lightning
-# setwd("~/Documents/Philippines/Genetics/")
 source("code/readGenepop_space.R")
-# source("data/readGenepop_space.R")
 
 
 # 1) Strip down to Ligation ID  - double check genepop to make sur --------
 
 # locate the genepop file and read as data frame
-genfile <- "data/seq03_16_DP10g95maf40.genepop"
+genfile <- "data/seq17_03g95maf2q30dp15.gen"
 genedf <- readGenepop(genfile)
 
 ### WAIT ###
