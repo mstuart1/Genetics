@@ -17,18 +17,24 @@ genedf$pop <- NULL
 
 # # TEST - make sure the first 2 columns are names and a contig and get number of rows
 # names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
-# nrow(genedf) # 1651
+# nrow(genedf) # 1816
 
 # Strip out the ligation ID
-genedf$lig <- substr(genedf$names,11,15)
+# first have to get all of the ligation ids to be the same length
+for (i in 1:nrow(genedf)){
+  if(nchar(genedf$names[i]) == 15){
+    genedf$names[i] <- paste("APCL_", substr(genedf$names[i], 11, 15), sep = "")
+  }
+  if(nchar(genedf$names[i]) == 10){
+    genedf$names[i] <- substr(genedf$names[i], 6, 10)
+  }
+}
 
-# TEST - make sure samples were renamed properly
-genedf$lig[1:5] # "L1733" "L2552" "L2553" "L2344" "L2463"
 
 # Connect to database Labor  ----------------------------------------------
 # open the laboratory database to retrieve sample info
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # Add sample IDs ----------------------------------------------------------
 suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
@@ -43,11 +49,11 @@ rm(c1, c2, c3, c4)
 
 # Merge the two dataframes so that lig IDs match up -----------------------
 
-largedf <- left_join(genedf, c5, by = c("lig" = "ligation_id"), copy = T)
+largedf <- left_join(genedf, c5, by = c("names" = "ligation_id"), copy = T)
 
 # # TEST - check the last 2 column names and that the number of rows hasn't changed
 # p <- ncol(largedf)
-# names(largedf[,(p-1):p]) # "lig" "sample_ID"
+# names(largedf[,(p-1):p]) # "dDocent_Contig_265137_10" "sample_ID"
 # nrow(genedf) == nrow(largedf) # should be TRUE
 # # look for missing names
 # setdiff(genedf$names, largedf$names) # should be character(0)
@@ -58,8 +64,8 @@ largedf <- left_join(genedf, c5, by = c("lig" = "ligation_id"), copy = T)
 
 # Connect to database Leyte -----------------------------------------------------
 # open the laboratory database to retrieve sample info
-suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+# suppressMessages(library(dplyr))
+leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # Read known issues table into R ------------------------------------------
 iss <- leyte %>% tbl("known_issues") %>% collect()
