@@ -7,14 +7,14 @@
 source("code/readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
-idcsv <- read.csv("identity/20160908_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("data/seq17_03_ID.csv", stringsAsFactors = F)
 
 # Add metadata ------------------------------------------------------------
 
 # Connect to database -----------------------------------------------------
 
 suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 
 # add Sample IDs
