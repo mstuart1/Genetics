@@ -1,14 +1,51 @@
 # Open the csv from identity analysis and look for resolutions to issues
 
 dat <- read.csv("data/2016-11-18_idanalyis.csv", stringsAsFactors = F)
-z <- nrow(dat) #166
+dat2 <- read.csv("data/seq17_03_ID.csv")
+# z <- nrow(dat) #166
 
-# find regenotyped samples
-regeno <- dat[dat$First.sample_id == dat$Second.sample_id, ]
-y <- nrow(regeno) #48
+# # find regenotyped samples
+# regeno <- dat[dat$First.sample_id == dat$Second.sample_id, ]
+# y <- nrow(regeno) #48
 
-# remove regenotyped samples from dat
-dat <- dat[dat$First.sample_id != dat$Second.sample_id, ]
-nrow(dat) == z-y
+# # remove regenotyped samples from dat
+# dat <- dat[dat$First.sample_id != dat$Second.sample_id, ]
+# nrow(dat) == z-y
 
 # find the samples that are on the known issues list
+suppressMessages(library(dplyr))
+leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+
+iss <- leyte %>% tbl("known_issues") %>% collect()
+
+issue1 <- data.frame()
+issue2 <- data.frame()
+for (i in 1:nrow(iss)){
+  issue1 <- rbind(issue1, dat[dat$First.ID == iss$Ligation_ID[i],])
+}
+iss <- anti_join(iss, issue1, by = c("Ligation_ID" = "First.ID"))
+
+for (i in 1:nrow(iss)){
+  issue2 <- rbind(issue2, dat[dat$Second.ID == iss$Ligation_ID[i],])
+}
+iss <- anti_join(iss, issue2, by = c("Ligation_ID" = "Second.ID"))
+
+
+issue <- rbind(issue1, issue2)
+rm(issue1, issue2)
+
+# cut down to just essential columns
+issue <- issue[ , c("First.sample_id", "Second.sample_id", "First.ID", "Second.ID")]
+
+# restore iss to full info
+iss <- leyte %>% tbl("known_issues") %>% collect()
+
+# attach notes to iss
+iss$notes <- NA
+
+iss$notes[iss$Ligation_ID == "L0370"] <- "APCL13_351 still matched to APCL14_445 when 445 was regenotyped from a new digest, APCL13_351 redigest was unsuccessful, not sequenced"
+iss$notes[iss$Ligation_ID == "L0377"] <- "APCL13_362 still matched to APCL14_555 when 555 was regenotyped from a new digest, APCL13_351 redigest was unsuccessful, not sequenced"
+iss$notes[iss$Ligation_ID == "L0288"] <- "APCL13_255 redigest was unsuccessful, not sequenced"
+iss$notes[iss$Ligation_ID == "L0413"] <- "APCL13_040 redigest was unsuccessful, not sequenced"
+iss$notes[iss$Ligation_ID == "L0415"] <- "L0415 matched to L2935 in the July 18, 2016 identity analysis, but did not match to it in the 11-18-2016 analysis because the matching loci threshold went up"
+
