@@ -9,6 +9,24 @@ source("code/readGenepop_space.R")
 # Import cervus identity results ------------------------------------------
 idcsv <- read.csv("data/seq17_03_ID.csv", stringsAsFactors = F)
 
+# # if necessary, strip IDs down to ligation id only
+# for (i in 1:nrow(idcsv)){
+#   if(nchar(idcsv$First.ID[i]) == 15){
+#     idcsv$First.ID[i] <- paste("APCL_", substr(idcsv$First.ID[i], 11, 15), sep = "")
+#   }
+#   if(nchar(idcsv$First.ID[i]) == 10){
+#     idcsv$First.ID[i] <- substr(idcsv$First.ID[i], 6, 10)
+#   }
+# }
+# for (i in 1:nrow(idcsv)){
+#   if(nchar(idcsv$Second.ID[i]) == 15){
+#     idcsv$Second.ID[i] <- paste("APCL_", substr(idcsv$Second.ID[i], 11, 15), sep = "")
+#   }
+#   if(nchar(idcsv$Second.ID[i]) == 10){
+#     idcsv$Second.ID[i] <- substr(idcsv$Second.ID[i], 6, 10)
+#   }
+# }
+
 # Add metadata ------------------------------------------------------------
 
 # Connect to database -----------------------------------------------------
@@ -16,9 +34,7 @@ idcsv <- read.csv("data/seq17_03_ID.csv", stringsAsFactors = F)
 suppressMessages(library(dplyr))
 labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
-
 # add Sample IDs
-
 suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
 suppressWarnings(c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id))
 c3 <- left_join(c2, c1, by = "extraction_id")
@@ -41,17 +57,16 @@ idcsv <- left_join(idcsv, lab2, by = c("Second.ID" = "Second.ligation_id"))
 # check proportion of matches/mismatches
 idcsv <- idcsv %>% mutate(mismatch_prop = Mismatching.loci/(Mismatching.loci+Matching.loci))
 
-plot(mismatch_prop ~ Matching.loci, idcsv, bty = "n", las = 1)
-abline(h=0.015)
+plot(mismatch_prop ~ Matching.loci, idcsv, bty = "n", las = 1, xlim = c(800,1050), ylim = c(0,0.15))
+abline(h=0.015, lty = 2)
 # bty "l" is this type, "n" is no box
 #las 1 is all labels horizontal, 2 is always perpendicular to axis, 3 is always vertical.
 
 # clean up
-rm(lab1, lab2)
+rm(lab1, lab2, c1, c2, c3, c4, c5, i)
 
 # Add field data ----------------------------------------------------------
-leyte <- src_mysql(dbname = "Leyte", host = "amphiprion.deenr.rutgers.edu", user = "michelles", password = "larvae168", port = 3306, create = F)
-
+leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 suppressWarnings(c1 <- leyte %>% tbl("diveinfo") %>% select(id, date, name))
 suppressWarnings(c2 <- leyte %>% tbl("anemones") %>% select(dive_table_id, anem_table_id, ObsTime))
@@ -63,14 +78,12 @@ first <- left_join(c4, c3, by = "anem_table_id") %>% collect()
 
 second <- first
 
-### WAIT ###
-
 names(first) <- paste("First.", names(first), sep = "")
 names(second) <- paste("Second.", names(second), sep = "")
 idcsv <- left_join(idcsv, first, by = c("First.sample_id" = "First.sample_id"))
 idcsv <- left_join(idcsv, second, by = c("Second.sample_id" = "Second.sample_id"))
 
-rm(first, second, labor)
+rm(first, second, labor, c1, c2, c3, c4)
 
 idcsv$First.lat <- NA
 idcsv$First.lon <- NA
