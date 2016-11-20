@@ -7,7 +7,7 @@
 source("code/readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
-idcsv <- read.csv("data/seq17_03_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("data/seq17_03_ID_647.csv", stringsAsFactors = F)
 
 # # if necessary, strip IDs down to ligation id only
 # for (i in 1:nrow(idcsv)){
@@ -41,6 +41,8 @@ c3 <- left_join(c2, c1, by = "extraction_id")
 suppressWarnings(c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id))
 c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
 
+### WAIT ###
+
 # for First.ids 
 lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
@@ -57,7 +59,7 @@ idcsv <- left_join(idcsv, lab2, by = c("Second.ID" = "Second.ligation_id"))
 # check proportion of matches/mismatches
 idcsv <- idcsv %>% mutate(mismatch_prop = Mismatching.loci/(Mismatching.loci+Matching.loci))
 
-plot(mismatch_prop ~ Matching.loci, idcsv, bty = "n", las = 1, xlim = c(800,1050), ylim = c(0,0.15))
+plot(mismatch_prop ~ Matching.loci, idcsv, bty = "n", las = 1, xlim = c(600,1100), ylim = c(0,0.15))
 abline(h=0.015, lty = 2)
 # bty "l" is this type, "n" is no box
 #las 1 is all labels horizontal, 2 is always perpendicular to axis, 3 is always vertical.
