@@ -1,27 +1,11 @@
 # Open the csv from identity analysis and look for resolutions to issues
 
-dat <- read.csv("data/2016-11-18_idanalyis.csv", stringsAsFactors = F)
-dat647 <- read.csv("data/2016-11-20_idanalyis.csv", stringsAsFactors = F)
-dat2 <- read.csv("data/seq17_03_ID.csv")
-dat2_647 <- read.csv("data/seq17_03_ID_647.csv")
-# z <- nrow(dat) #166
+filename <- "data/2016-11-21_idanalyis.csv"
 
-# there are fewer matches in the July set with fewer loci than in the November set.
+dat <- read.csv(filename, stringsAsFactors = F)
 
-# compare which loci are present in the 2 data sets
-dat1 <- read.table("data/seq17_03_ID_647.txt", skip = 27, fill = T)
-dat2 <- read.table("data/seq03-16_20160718_ID.txt", skip = 28, fill = T)
+# z <- nrow(dat) #366
 
-dat1 <- dat1[2:1039, 1:2]
-dat2 <- dat2[1:809, ]
-
-dat2[,2] <- factor(dat2[,2], levels=levels(dat1[,2]))
-
-same <- list()
-# setdiff(dat1$V2, dat2$V2)
-for (i in 1:nrow(dat2)){
-  same <- c(same, dat1$V2[which(dat1$V2 != dat2$V2)])
-}
 
 # # find regenotyped samples
 # regeno <- dat[dat$First.sample_id == dat$Second.sample_id, ]
@@ -35,8 +19,10 @@ for (i in 1:nrow(dat2)){
 suppressMessages(library(dplyr))
 leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
+# 93 known issues
 iss <- leyte %>% tbl("known_issues") %>% collect()
 
+# which samples are in both the dat and iss?
 issue1 <- data.frame()
 issue2 <- data.frame()
 for (i in 1:nrow(iss)){
