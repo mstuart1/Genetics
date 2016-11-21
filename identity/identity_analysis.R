@@ -7,7 +7,7 @@
 source("code/readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
-idcsv <- read.csv("data/seq17_03_ID_647.csv", stringsAsFactors = F)
+idcsv <- read.csv("data/seq17_03_SNPs_ID.csv", stringsAsFactors = F)
 
 # # if necessary, strip IDs down to ligation id only
 # for (i in 1:nrow(idcsv)){
@@ -165,7 +165,7 @@ for(i in 1:nrow(idcsv)){
 ### WAIT ###
 
 # cleanup
-rm(first, second, c5, latlong)
+rm(date, datesplit, day, hour , i , i2, latlongindex, min, month, sec, time, timesplit, year, latlong)
 
 # Flag matches with same date of capture ----------------------------------
 # idcsv$First.date <- as.Date(idcsv$First.date, "%m/%d/%Y")
