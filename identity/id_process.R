@@ -9,12 +9,13 @@ leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"
 
 
 # import the results of the identity_analysis script used to remove recaptured fish from parentage
-filename <- "identity/2016-11-02_idanalyis.csv"
+filename <- "data/2016-11-21_idanalyis.csv"
 
 idcsv <- read.csv(filename, stringsAsFactors = F)
 
 # strip down to sample_id and field data
-idsimp <- idcsv[ , c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.Date", "First.Name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.Date", "Second.Name",  "Second.lat", "Second.lon", "First.ID", "Second.ID")]
+idsimp <- idcsv[ , c("First.sample_id", "First.anem_table_id", "First.fish_table_id", "First.Size", "First.dive_table_id", "First.ObsTime",  "First.id", "First.date", "First.name", "First.lat",  "First.lon","Second.sample_id", "Second.anem_table_id", "Second.fish_table_id", "Second.Size",  "Second.dive_table_id", "Second.ObsTime", "Second.id",  "Second.date", "Second.name",  "Second.lat", "Second.lon", "First.ID", "Second.ID")]
+
 
 # pull anem_id from database
 suppressWarnings(c1 <- leyte %>% tbl("anemones") %>% select(anem_table_id, anem_id, old_anem_id) %>% collect()) 
