@@ -7,25 +7,25 @@
 source("code/readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
-idcsv <- read.csv("data/seq17_03_SNPs_ID.csv", stringsAsFactors = F)
+idcsv <- read.csv("data/809_ID.csv", stringsAsFactors = F)
 
 # # if necessary, strip IDs down to ligation id only
-# for (i in 1:nrow(idcsv)){
-#   if(nchar(idcsv$First.ID[i]) == 15){
-#     idcsv$First.ID[i] <- paste("APCL_", substr(idcsv$First.ID[i], 11, 15), sep = "")
-#   }
-#   if(nchar(idcsv$First.ID[i]) == 10){
-#     idcsv$First.ID[i] <- substr(idcsv$First.ID[i], 6, 10)
-#   }
-# }
-# for (i in 1:nrow(idcsv)){
-#   if(nchar(idcsv$Second.ID[i]) == 15){
-#     idcsv$Second.ID[i] <- paste("APCL_", substr(idcsv$Second.ID[i], 11, 15), sep = "")
-#   }
-#   if(nchar(idcsv$Second.ID[i]) == 10){
-#     idcsv$Second.ID[i] <- substr(idcsv$Second.ID[i], 6, 10)
-#   }
-# }
+for (i in 1:nrow(idcsv)){
+  if(nchar(idcsv$First.ID[i]) == 15){
+    idcsv$First.ID[i] <- paste("APCL_", substr(idcsv$First.ID[i], 11, 15), sep = "")
+  }
+  if(nchar(idcsv$First.ID[i]) == 10){
+    idcsv$First.ID[i] <- substr(idcsv$First.ID[i], 6, 10)
+  }
+}
+for (i in 1:nrow(idcsv)){
+  if(nchar(idcsv$Second.ID[i]) == 15){
+    idcsv$Second.ID[i] <- paste("APCL_", substr(idcsv$Second.ID[i], 11, 15), sep = "")
+  }
+  if(nchar(idcsv$Second.ID[i]) == 10){
+    idcsv$Second.ID[i] <- substr(idcsv$Second.ID[i], 6, 10)
+  }
+}
 
 # Add metadata ------------------------------------------------------------
 
@@ -48,6 +48,8 @@ lab1 <- c5
 names(lab1) <- paste("First.", names(lab1), sep = "")
 
 idcsv <- left_join(idcsv, lab1, by = c("First.ID" = "First.ligation_id"))
+
+### WAIT ###
 
 # For Second.IDs
 lab2 <- c5
