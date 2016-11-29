@@ -1,6 +1,59 @@
+source("~/Documents/myRcode/Laboratory/R/findsampleid.R")
+source("~/Documents/myRcode/Laboratory/R/findlabwork.R")
+# if not starting immediately from identity_analysis.R then load the data
+idcsv <- read.csv("data/2016-11-28_idanalyis.csv", stringsAsFactors = F)
+
+# Load the issues list
+suppressMessages(library(dplyr))
+leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+
+# 93 known issues
+iss <- leyte %>% tbl("known_issues") %>% collect()
+
+# issue under examination
+lig <- "L2731"
+
+findsample(lig)
+
+
+print(iss$Issue[which(iss$Ligation_ID == lig)])
+
+findlab("APCL15_369558")
+
+# does the regenotype match the original
+X <- "L3137"
+print(idcsv$Second.ID[which(idcsv$First.ID == X)])
+print(idcsv$First.ID[which(idcsv$Second.ID == X)])
+
+Y <- "L2731"
+print(idcsv$Second.ID[which(idcsv$First.ID == Y)])
+print(idcsv$First.ID[which(idcsv$Second.ID == Y)])
+
+# Where was the fish caught?
+idcsv$First.name[which(idcsv$First.ID == lig)]
+
+# which anemone
+paste("anem_table_id =",idcsv$First.anem_table_id[which(idcsv$First.ID == lig)], sep = " ")
+atable <- idcsv$First.anem_table_id[unique(which(idcsv$First.ID == lig))]
+anem <- leyte %>% tbl("anemones") %>% filter(anem_table_id == atable[1]) %>% select(anem_id) %>% collect() 
+paste("anem_id =", anem, sep = " ")
+
+# which fish did we see
+fish <- leyte %>% tbl("clownfish") %>% filter(anem_table_id == atable[1]) %>% select(sample_id, size, col) %>% collect() 
+print(fish)
+
+# have we been to this anem at other times?
+visits <- leyte %>% tbl("anemones") %>% filter(anem_id == 58) %>% select(anem_table_id) %>% collect() 
+if (nrow(visits) > 1){
+  paste("Also visited", visits, sep = " ")
+}else{print("This was the only visit made to this anemone.")}
+
+
+# Before 11-28-2016
+##########################################################################################
 # Open the csv from identity analysis and look for resolutions to issues
 
-filename <- "data/2016-11-21_idanalyis.csv"
+filename <- "data/2016-11-28_idanalyis.csv"
 
 dat <- read.csv(filename, stringsAsFactors = F)
 
