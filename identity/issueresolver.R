@@ -11,30 +11,36 @@ leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"
 iss <- leyte %>% tbl("known_issues") %>% collect()
 
 # issue under examination
-lig <- "L2731"
+lig <- "L0911"
 
 findsample(lig)
 
+findlab("APCL14_159")
 
 print(iss$Issue[which(iss$Ligation_ID == lig)])
 
-findlab("APCL15_369558")
+
 
 # does the regenotype match the original
-X <- "L3137"
+X <- "D3268"
 print(idcsv$Second.ID[which(idcsv$First.ID == X)])
 print(idcsv$First.ID[which(idcsv$Second.ID == X)])
 
-Y <- "L2731"
+Y <- "L0424"
 print(idcsv$Second.ID[which(idcsv$First.ID == Y)])
 print(idcsv$First.ID[which(idcsv$Second.ID == Y)])
 
 # Where was the fish caught?
+idcsv$Second.name[which(idcsv$Second.ID == lig)]
 idcsv$First.name[which(idcsv$First.ID == lig)]
+
 
 # which anemone
 paste("anem_table_id =",idcsv$First.anem_table_id[which(idcsv$First.ID == lig)], sep = " ")
 atable <- idcsv$First.anem_table_id[unique(which(idcsv$First.ID == lig))]
+paste("anem_table_id =",idcsv$Second.anem_table_id[which(idcsv$Second.ID == lig)], sep = " ")
+atable <- idcsv$Second.anem_table_id[unique(which(idcsv$Second.ID == lig))]
+
 anem <- leyte %>% tbl("anemones") %>% filter(anem_table_id == atable[1]) %>% select(anem_id) %>% collect() 
 paste("anem_id =", anem, sep = " ")
 
@@ -43,11 +49,19 @@ fish <- leyte %>% tbl("clownfish") %>% filter(anem_table_id == atable[1]) %>% se
 print(fish)
 
 # have we been to this anem at other times?
-visits <- leyte %>% tbl("anemones") %>% filter(anem_id == 58) %>% select(anem_table_id) %>% collect() 
+anem <- 284
+visits <- leyte %>% tbl("anemones") %>% filter(anem_id == anem) %>% select(anem_table_id) %>% collect() 
 if (nrow(visits) > 1){
   paste("Also visited", visits, sep = " ")
 }else{print("This was the only visit made to this anemone.")}
 
+# other anemones in the area have what fish?
+anem2 <- 1338
+oanem <- leyte %>% tbl("anemones") %>% filter(anem_id == anem2) %>% select(anem_table_id) %>% as.list(collect())
+print(oanem)
+ati <- 1318
+atable2 <- leyte %>% tbl("clownfish") %>% filter(anem_table_id == ati) %>% select(sample_id, size, col) %>% collect()
+print(atable2)
 
 # Before 11-28-2016
 ##########################################################################################
