@@ -8,15 +8,17 @@ reads <- read.csv("data/APCL_read_data.csv", stringsAsFactors = F)
 # Load the issues list
 suppressMessages(library(dplyr))
 leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # 93 known issues
 iss <- leyte %>% tbl("known_issues") %>% collect()
 
 # issue under examination
-lig <- "L1292"
+lig <- "L2988"
 
 sample <- findsample(lig)
 lab <- findlab(sample$sample_id)
+# lab <- findlab("APCL14_556")
 
 print(iss$Issue[which(iss$Ligation_ID == lig)])
 
