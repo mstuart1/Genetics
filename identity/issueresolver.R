@@ -14,7 +14,7 @@ labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig
 iss <- leyte %>% tbl("known_issues") %>% collect()
 
 # issue under examination
-lig <- "L2988"
+lig <- "L0936"
 
 sample <- findsample(lig)
 lab <- findlab(sample$sample_id)
@@ -94,3 +94,22 @@ for (i in length(digest)){
 for (i in length(ligation)){
   print(labor %>% tbl("ligation") %>% filter(ligation_id %in% ligation) %>% select(ligation_id, date))
 }
+
+### Examine extract plates for evidence of mislabeling ###
+
+# find the list of fish caught at a given site in a given year
+dives <- leyte %>% tbl("diveinfo") %>% filter(date %like% "2014%") %>% filter(name %like% "Palanas") %>% collect()
+anems <- leyte %>% tbl("anemones") %>% filter(dive_table_id %in% dives$id) %>% collect()
+fish <- leyte %>% tbl("clownfish") %>% filter(anem_table_id %in% anems$anem_table_id) %>% collect()
+fish <- fish[!is.na(fish$sample_id),]
+
+# What date was our sample in question extracted on?
+date <- labor %>% tbl("extraction") %>% filter(sample_id == "APCL14_384") %>% select(date, plate) %>% collect()
+
+# were any samples from the site above extracted on that date?
+match <- labor %>% tbl("extraction") %>% filter(sample_id %in% fish$sample_id) %>% filter(date == date$date) %>% filter(plate == date$plate) %>% collect()
+
+
+# plot a histogram of distances
+dat <- read.csv("data/2016-11-28_idanalyis.csv", as.is = T)
+hist(dat$distkm, breaks = c(0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.5, 2, 2.5, 25, 30))
