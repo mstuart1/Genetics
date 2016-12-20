@@ -232,15 +232,15 @@ write.csv(idcsv, file = paste("data/", Sys.Date(), "_idanalyis.csv", sep = ""), 
 
 # Open genepop ------------------------------------------------------------
 
-genfile <- "data/2016-09-08_noregeno.genepop" # this should be the genepop you used as input for Cervus ID
+genfile <- "data/2016-12-20_noregeno.gen" # this should be the genepop you used as input for Cervus ID
 genedf <- readGenepop(genfile)
 
 ### WAIT ###
 
-genedf[,1] <- NULL # remove the pop column from the data file
+genedf$pop <- NULL # remove the pop column from the data file
 # TEST - make sure the first 2 columns are names and a contig and get number of rows
 names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
-nrow(genedf) # 1482
+nrow(genedf) # 1824
 
 
 # Calculate the number of loci for analysis -------------------------------
@@ -288,7 +288,7 @@ keep$drop <- NULL
 # convert all the NA genotypes to 0000
 keep[is.na(keep)] = "0000"
 # TEST - make sure there are no NA's left
-which(keep == NA) # should return integer(0)
+which(is.na(keep)) # should return integer(0)
 
 # Write out genepop  ------------------------------------------------------
 
@@ -308,6 +308,6 @@ for (i in 1:nrow(keep)){
 
 out <- c(msg, loci, 'pop', sample)
 
-write.table(out, file = paste("data/",Sys.Date(), "_norecap.genepop", sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE)
+write.table(out, file = paste("data/",Sys.Date(), "_norecap.gen", sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE)
 
 
