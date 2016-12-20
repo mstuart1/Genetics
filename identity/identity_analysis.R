@@ -7,25 +7,25 @@
 source("code/readGenepop_space.R")
 
 # Import cervus identity results ------------------------------------------
-idcsv <- read.csv("data/809_ID.csv", stringsAsFactors = F)
+  idcsv <- read.csv("data/809_seq17-03_ID.csv", stringsAsFactors = F)
 
-# # if necessary, strip IDs down to ligation id only
-for (i in 1:nrow(idcsv)){
-  if(nchar(idcsv$First.ID[i]) == 15){
-    idcsv$First.ID[i] <- paste("APCL_", substr(idcsv$First.ID[i], 11, 15), sep = "")
-  }
-  if(nchar(idcsv$First.ID[i]) == 10){
-    idcsv$First.ID[i] <- substr(idcsv$First.ID[i], 6, 10)
-  }
-}
-for (i in 1:nrow(idcsv)){
-  if(nchar(idcsv$Second.ID[i]) == 15){
-    idcsv$Second.ID[i] <- paste("APCL_", substr(idcsv$Second.ID[i], 11, 15), sep = "")
-  }
-  if(nchar(idcsv$Second.ID[i]) == 10){
-    idcsv$Second.ID[i] <- substr(idcsv$Second.ID[i], 6, 10)
-  }
-}
+# # # if necessary, strip IDs down to ligation id only
+# for (i in 1:nrow(idcsv)){
+#   if(nchar(idcsv$First.ID[i]) == 15){
+#     idcsv$First.ID[i] <- paste("APCL_", substr(idcsv$First.ID[i], 11, 15), sep = "")
+#   }
+#   if(nchar(idcsv$First.ID[i]) == 10){
+#     idcsv$First.ID[i] <- substr(idcsv$First.ID[i], 6, 10)
+#   }
+# }
+# for (i in 1:nrow(idcsv)){
+#   if(nchar(idcsv$Second.ID[i]) == 15){
+#     idcsv$Second.ID[i] <- paste("APCL_", substr(idcsv$Second.ID[i], 11, 15), sep = "")
+#   }
+#   if(nchar(idcsv$Second.ID[i]) == 10){
+#     idcsv$Second.ID[i] <- substr(idcsv$Second.ID[i], 6, 10)
+#   }
+# }
 
 # Add metadata ------------------------------------------------------------
 
@@ -62,7 +62,6 @@ idcsv <- left_join(idcsv, lab2, by = c("Second.ID" = "Second.ligation_id"))
 idcsv <- idcsv %>% mutate(mismatch_prop = Mismatching.loci/(Mismatching.loci+Matching.loci))
 
 plot(mismatch_prop ~ Matching.loci, idcsv, bty = "n", las = 1, xlim = c(600,1100), ylim = c(0,0.15))
-abline(h=0.015, lty = 2)
 # bty "l" is this type, "n" is no box
 #las 1 is all labels horizontal, 2 is always perpendicular to axis, 3 is always vertical.
 
