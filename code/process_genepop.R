@@ -7,7 +7,7 @@ source("code/readGenepop_space.R")
 # 1) Strip down to Ligation ID  - double check genepop to make sur --------
 
 # locate the genepop file and read as data frame
-genfile <- "data/seq17_03g95maf2q30dp15.gen"
+genfile <- "data/809_seq17_03.gen"
 genedf <- readGenepop(genfile)
 
 ### WAIT ###
@@ -17,7 +17,7 @@ genedf$pop <- NULL
 
 # # TEST - make sure the first 2 columns are names and a contig and get number of rows
 # names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
-# nrow(genedf) # 1816
+# nrow(genedf) #2111
 
 # Strip out the ligation ID
 # first have to get all of the ligation ids to be the same length
@@ -53,7 +53,7 @@ largedf <- left_join(genedf, c5, by = c("names" = "ligation_id"), copy = T)
 
 # # TEST - check the last 2 column names and that the number of rows hasn't changed
 # p <- ncol(largedf)
-# names(largedf[,(p-1):p]) # "dDocent_Contig_265137_10" "sample_ID"
+# names(largedf[,(p-1):p]) # " dDocent_Contig_256998_105" "sample_id"    
 # nrow(genedf) == nrow(largedf) # should be TRUE
 # # look for missing names
 # setdiff(genedf$names, largedf$names) # should be character(0)
@@ -74,14 +74,14 @@ iss <- leyte %>% tbl("known_issues") %>% collect()
 
 # create a new table with only the issue samples, keep only lig and issue
 iss_lig <- largedf %>%
-  filter(lig %in% iss$Ligation_ID) %>%
-  select(lig) %>%
+  filter(names %in% iss$Ligation_ID) %>%
+  select(names) %>%
   mutate(issue = 1)
 
 m <- nrow(iss_lig) # for testing later
 
 # merge the issue column into the original table
-largedf <- left_join(largedf, iss_lig, by = "lig")
+largedf <- left_join(largedf, iss_lig, by = "names")
 
 # remove all samples with issue = 1
 largedf <- largedf[is.na(largedf$issue), ]
@@ -89,7 +89,7 @@ largedf$issue <- NULL
 
 # # TEST - make sure no more match the list
 # j <- largedf %>%
-#   filter(lig %in% iss$Ligation_ID)
+#   filter(names %in% iss$Ligation_ID)
 # nrow(j) # should return 0
   
 
@@ -121,7 +121,7 @@ regenod <- largedf %>%
 
 # # TEST - make sure a list was generated
 k <- nrow(regenod)
-k # 82
+k # 189
 
 
 largedf$drop <- NA # place holder
@@ -185,7 +185,7 @@ noregeno [,c("drop")] <- NULL
 # convert all the NA genotypes to 0000
 noregeno[is.na(noregeno)] = "0000"
 # TEST - make sure there are no NA's left
-which(noregeno == NA) # should return integer(0)
+which(is.na(noregeno)) # should return integer(0)
 
 # TEST - compare the length of noregeno to the length of largedf
 nrow(noregeno) == nrow(largedf) - k # 1569/1531 - should return TRUE
@@ -206,6 +206,6 @@ for (i in 1:nrow(noregeno)){
 
 out <- c(msg, loci, 'pop', sample)
 
-write.table(out, file = paste("data/",Sys.Date(), '_noregeno.genepop', sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE) # won't let me use header=FALSE - use col.names instead of header
+write.table(out, file = paste("data/",Sys.Date(), '_noregeno.gen', sep = ""), row.names=FALSE, quote=FALSE, col.names=FALSE) # won't let me use header=FALSE - use col.names instead of header
 
 
