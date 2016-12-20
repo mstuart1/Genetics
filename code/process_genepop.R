@@ -177,8 +177,7 @@ noregeno_match # should return character(0)
 # remove the extra columns from noregeno
 noregeno [,c("extraction_ID")] <- NULL
 noregeno [,c("digest_ID")] <- NULL
-noregeno [,c("names")] <- NULL
-noregeno [,c("sample_ID")] <- NULL
+noregeno [,c("sample_id")] <- NULL
 noregeno [,c("numloci")] <- NULL
 noregeno [,c("drop")] <- NULL
 
