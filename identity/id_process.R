@@ -168,19 +168,17 @@ fift <-  grep("15", colnames(wide))
 sixt <-  grep("16", colnames(wide))
 
 names(wide)
-wide <- wide[,c("sample12", "sample13", "sample14", "sample15")]
+wide <- wide[,c("sample12", "sample13", "sample14", "sample15", "sample16")]
 
 # flatten multiples (using na.rm keeps the data and omits NAs)
 twelve <- aggregate(x=wide, by=list(name=wide$sample12), min, na.rm = T)
 thirteen <- aggregate(x=wide, by=list(name=wide$sample13), min, na.rm = T)
 fourteen <- aggregate(x=wide, by=list(name=wide$sample14), min, na.rm = T)
 fifteen <- aggregate(x=wide, by=list(name=wide$sample15), min, na.rm = T)
+sixteen <- aggregate(x=wide, by=list(name=wide$sample16), min, na.rm = T)
 
 
-whole <- rbind(twelve, thirteen)
-whole <- rbind(whole, fourteen)
-whole <- rbind(whole, fifteen)
-
+whole <- rbind(twelve, thirteen, fourteen, fifteen, sixteen)
 whole$name <- NULL
 
 suppressMessages(library(dplyr))
@@ -216,7 +214,11 @@ fifteen <- whole[!is.na(whole$sample15), ]
 fifteen <- fifteen[, c("sample15", "fish_num")]
 colnames(fifteen) <- c("sample_id", "capid")
 
-long <- rbind(twelve, thirteen, fourteen, fifteen)
+sixteen <- whole[!is.na(whole$sample16), ]
+sixteen <- sixteen[, c("sample16", "fish_num")]
+colnames(sixteen) <- c("sample_id", "capid")
+
+long <- rbind(twelve, thirteen, fourteen, fifteen, sixteen)
 
 
 # long is a table with a fish id number for each fish, which is repeated every time that fish was caught
