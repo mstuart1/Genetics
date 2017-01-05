@@ -449,7 +449,7 @@ for (i in 1:nrow(allfish)){
 
 # reload the clownfish table into the database
 library(RMySQL)
-leyte <- dbConnect(MySQL(), host="amphiprion.deenr.rutgers.edu", user="michelles", password="larvae168", dbname="Leyte", port=3306)
+leyte <- dbConnect(MySQL(), dbname="Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 # Send data to database
 dbWriteTable(leyte,"clownfish",data.frame(clownfish), row.names = FALSE, overwrite = T)
