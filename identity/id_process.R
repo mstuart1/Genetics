@@ -1,5 +1,6 @@
 # this script takes the output csv of identity analysis and creates a table to track fish over time.
 source("../code/conleyte.R")
+source("../code/writeleyte.R")
 
 # Connect to database
 leyte <- conleyte()
@@ -240,4 +241,12 @@ write.csv(fish, file = paste("data/", Sys.time(), "_fishbackup.csv", sep = ""))
 
 # match wells from plates above to wells in database
 fish$capid <- ifelse(is.na(fish$capid), long$capid[match(fish$sample_id, long$sample_id)], fish$capid)
+
+# add back to database
+leytes <- writeleyte()
+
+dbWriteTable(leytes,"clownfish",data.frame(fish), row.names = FALSE, append = TRUE)
+
+dbDisconnect(leytes)
+rm(leytes)
   
