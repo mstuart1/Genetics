@@ -1,9 +1,26 @@
 # growth analysis - use long output from id_process.R
 
+source("../code/conleyte.R")
+
+# connect to db
+leyte <- conleyte()
+
+# pull in all fish that have been recaptured over multiple years
+
+  # genetically 
+capid <- leyte %>% tbl("clownfish") %>% select(sample_id, col, size, tagid, capid, fish_table_id, anem_table_id) %>% filter(!is.na(capid)) %>% collect()
+
+#   # by tag id - skipping because so far these are all within-year recaptures
+# recap <- leyte %>% tbl("clownfish") %>% filter(!is.na(sample_id) & recap == "Y") %>% collect()
+
+# determine capid range
+z <- max(capid$capid)
 
 
-# GROWTH ------------------------------------------------------------------
-# read in "long" data file
+# for each capture event, assign a year
+capid$year <- substr(capid$sample_id, 5,6)
+capid$year <- paste("20", capid$year, sep = "")
+
 
 ################################################################
 #############           GROWTH           #######################
