@@ -1,5 +1,7 @@
 source("../../myRcode/Laboratory/R/findsampleid.R")
 source("../../myRcode/Laboratory/R/findlabwork.R")
+source("../code/conleyte.R")
+source("../../myRcode/Laboratory/R/conlabor.R")
 # if not starting immediately from identity_analysis.R then load the data
 idcsv <- read.csv("data/2016-11-28_idanalyis.csv", stringsAsFactors = F)
 
@@ -7,18 +9,18 @@ reads <- read.csv("data/APCL_read_data.csv", stringsAsFactors = F)
 
 # Load the issues list
 suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
-labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+leyte <- conleyte()
+labor <- conlabor()
 
-# 93 known issues
+# 100 known issues
 iss <- leyte %>% tbl("known_issues") %>% collect()
 
 # issue under examination
-lig <- "L0936"
+lig <- "L0764"
 
 sample <- findsample(lig)
 lab <- findlab(sample$sample_id)
-# lab <- findlab("APCL14_556")
+# lab <- findlab("APCL15_373943")
 
 print(iss$Issue[which(iss$Ligation_ID == lig)])
 
@@ -58,7 +60,7 @@ atable <- idcsv$First.anem_table_id[unique(which(idcsv$First.ID == lig))]
 paste("anem_table_id =",idcsv$Second.anem_table_id[which(idcsv$Second.ID == lig)], sep = " ")
 atable <- idcsv$Second.anem_table_id[unique(which(idcsv$Second.ID == lig))]
 
-anem <- leyte %>% tbl("anemones") %>% filter(anem_table_id == atable[1]) %>% select(anem_id) %>% collect() 
+anem <- leyte %>% tbl("anemones") %>% filter(anem_table_id == atable[1]) %>% select(anem_id, anemobs) %>% collect() 
 paste("anem_id =", anem, sep = " ")
 
 # which fish did we see
@@ -66,8 +68,9 @@ fish <- leyte %>% tbl("clownfish") %>% filter(anem_table_id == atable[1]) %>% se
 print(fish)
 
 # have we been to this anem at other times?
-anem <- anem$anem_id
-visits <- leyte %>% tbl("anemones") %>% filter(anem_id == anem) %>% select(anem_table_id) %>% collect() 
+anem$anemobs
+
+
 if (nrow(visits) > 1){
   paste("Also visited", visits, sep = " ")
 }else{print("This was the only visit made to this anemone.")}

@@ -238,6 +238,7 @@ fish <- leyte %>% tbl("clownfish") %>% collect()
 
 # make a backup in case something goes wrong
 write.csv(fish, file = paste("data/", Sys.time(), "_fishbackup.csv", sep = ""))
+# fish <- read.csv("data/2017-01-05 15:26:15_fishbackup.csv", stringsAsFactors = F)
 
 # match wells from plates above to wells in database
 fish$capid <- ifelse(is.na(fish$capid), long$capid[match(fish$sample_id, long$sample_id)], fish$capid)
@@ -245,7 +246,7 @@ fish$capid <- ifelse(is.na(fish$capid), long$capid[match(fish$sample_id, long$sa
 # add back to database
 leytes <- writeleyte()
 
-dbWriteTable(leytes,"clownfish",data.frame(fish), row.names = FALSE, append = TRUE)
+dbWriteTable(leytes,"clownfish",data.frame(fish), row.names = FALSE, overwrite = TRUE)
 
 dbDisconnect(leytes)
 rm(leytes)
