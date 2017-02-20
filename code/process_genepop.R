@@ -2,12 +2,13 @@
 
 # Set up working directory ---------------------------------------------
 source("code/readGenepop_space.R")
+source("code/sampforlig.R")
 
 
 # 1) Strip down to Ligation ID  - double check genepop to make sur --------
 
 # locate the genepop file and read as data frame
-genfile <- "data/809_seq17_03.gen"
+genfile <- "data/2016-11-14_13_geno.gen"
 genedf <- readGenepop(genfile)
 
 ### WAIT ###
@@ -19,33 +20,23 @@ genedf$pop <- NULL
 # names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
 # nrow(genedf) #2111
 
-# Strip out the ligation ID
-# first have to get all of the ligation ids to be the same length
-for (i in 1:nrow(genedf)){
-  if(nchar(genedf$names[i]) == 15){
+# # Strip out the ligation ID
+# # first have to get all of the ligation ids to be the same length
+  for (i in 1:nrow(genedf)){
+    if(nchar(genedf$names[i]) == 15){
     genedf$names[i] <- paste("APCL_", substr(genedf$names[i], 11, 15), sep = "")
   }
-  if(nchar(genedf$names[i]) == 10){
+    if(nchar(genedf$names[i]) == 10){
     genedf$names[i] <- substr(genedf$names[i], 6, 10)
+    }
   }
-}
-
 
 # Connect to database Labor  ----------------------------------------------
-# open the laboratory database to retrieve sample info
-suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+
 
 # Add sample IDs ----------------------------------------------------------
-suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
-suppressWarnings(c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id))
-c3 <- left_join(c2, c1, by = "extraction_id")
-suppressWarnings(c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id))
-c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
-c5 <- subset(c5, !is.na("sample_id"), select = c(ligation_id, sample_id)) 
+c5 <- sampforlig(genedf$names)
 
-# cleanup
-rm(c1, c2, c3, c4)
 
 # Merge the two dataframes so that lig IDs match up -----------------------
 
