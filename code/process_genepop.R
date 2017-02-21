@@ -3,12 +3,15 @@
 # Set up working directory ---------------------------------------------
 source("code/readGenepop_space.R")
 source("code/sampforlig.R")
+suppressMessages(library(dplyr))
 
 
-# 1) Strip down to Ligation ID  - double check genepop to make sur --------
+
+
+# 1) Read the genepop  - double check genepop to make sur --------
 
 # locate the genepop file and read as data frame
-genfile <- "data/2016-11-14_13_geno.gen"
+genfile <- "data/seq0217.gen"
 genedf <- readGenepop(genfile)
 
 ### WAIT ###
@@ -29,18 +32,28 @@ genedf$pop <- NULL
     if(nchar(genedf$names[i]) == 10){
     genedf$names[i] <- substr(genedf$names[i], 6, 10)
     }
+    if(nchar(genedf$names[i]) == 9){
+      genedf$names[i] <- substr(genedf$names[i], 5, 9)
+    }
+    if(nchar(genedf$names[i]) == 8){
+      genedf$names[i] <- substr(genedf$names[i], 4, 8)
+    }
   }
 
-# Connect to database Labor  ----------------------------------------------
 
+
+# TEST are any names still longer than 5 characters?
+# which(nchar(genedf$names) > 5) # should be integer(0)
 
 # Add sample IDs ----------------------------------------------------------
 c5 <- sampforlig(genedf$names)
 
 
+
 # Merge the two dataframes so that lig IDs match up -----------------------
 
 largedf <- left_join(genedf, c5, by = c("names" = "ligation_id"), copy = T)
+rm(c5)
 
 # # TEST - check the last 2 column names and that the number of rows hasn't changed
 # p <- ncol(largedf)
@@ -49,34 +62,34 @@ largedf <- left_join(genedf, c5, by = c("names" = "ligation_id"), copy = T)
 # # look for missing names
 # setdiff(genedf$names, largedf$names) # should be character(0)
 
+
+
+
+# 1431 1432 1433 1434 1435 1436 1437 1438 1439 1440 1441 1442 1443 1444 1445 1972
+
+
+
 # Remove samples with known issues ----------------------------------------
 
 # to remove samples with known issues, pull the data from the known issues database
 
-# Connect to database Leyte -----------------------------------------------------
+
 # open the laboratory database to retrieve sample info
 # suppressMessages(library(dplyr))
 leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
-# Read known issues table into R ------------------------------------------
 iss <- leyte %>% tbl("known_issues") %>% collect()
+rm(leyte)
 
-# Remove ligation IDs with issues -----------------------------------------
+# remove issues from largedf
+largedf <- largedf %>%
+  filter(!names %in% iss$Ligation_ID)
+rm(iss, genedf)
 
-# create a new table with only the issue samples, keep only lig and issue
-iss_lig <- largedf %>%
-  filter(names %in% iss$Ligation_ID) %>%
-  select(names) %>%
-  mutate(issue = 1)
+# make sure all of the Ligation ids have sample ids
+which(is.na(largedf$sample_id)) # L3118 has no sample id, is a mixture of samples
 
-m <- nrow(iss_lig) # for testing later
-
-# merge the issue column into the original table
-largedf <- left_join(largedf, iss_lig, by = "names")
-
-# remove all samples with issue = 1
-largedf <- largedf[is.na(largedf$issue), ]
-largedf$issue <- NULL
+largedf <- largedf %>% filter(!is.na(largedf$sample_id))
 
 # # TEST - make sure no more match the list
 # j <- largedf %>%
@@ -85,8 +98,6 @@ largedf$issue <- NULL
   
 
 # Remove regenotyped samples ----------------------------------------------
-
-# Calculate the number of genotyped loci for each sample ----------------
 
 # convert 0000 to NA in the genepop data
 largedf[largedf == "0000"] = NA
