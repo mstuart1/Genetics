@@ -3,6 +3,7 @@
 # Set up working directory ---------------------------------------------
 source("code/readGenepop_space.R")
 source("code/sampforlig.R")
+source("~/Documents/Philippines/Phil_code/conleyte.R")
 suppressMessages(library(dplyr))
 
 
@@ -48,8 +49,6 @@ genedf$pop <- NULL
 # Add sample IDs ----------------------------------------------------------
 c5 <- sampforlig(genedf$names)
 
-
-
 # Merge the two dataframes so that lig IDs match up -----------------------
 
 largedf <- left_join(genedf, c5, by = c("names" = "ligation_id"), copy = T)
@@ -76,7 +75,7 @@ rm(c5)
 
 # open the laboratory database to retrieve sample info
 # suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+leyte <- conleyte()
 
 iss <- leyte %>% tbl("known_issues") %>% collect()
 rm(leyte)
@@ -87,7 +86,7 @@ largedf <- largedf %>%
 rm(iss, genedf)
 
 # make sure all of the Ligation ids have sample ids
-which(is.na(largedf$sample_id)) # L3118 has no sample id, is a mixture of samples
+which(is.na(largedf$sample_id)) # 1972- L3118 has no sample id, is a mixture of samples
 
 largedf <- largedf %>% filter(!is.na(largedf$sample_id))
 
@@ -179,7 +178,6 @@ noregeno_match # should return character(0)
 # remove the extra columns from noregeno
 noregeno [,c("extraction_ID")] <- NULL
 noregeno [,c("digest_ID")] <- NULL
-noregeno [,c("sample_id")] <- NULL
 noregeno [,c("numloci")] <- NULL
 noregeno [,c("drop")] <- NULL
 
@@ -190,6 +188,78 @@ which(is.na(noregeno)) # should return integer(0)
 
 # TEST - compare the length of noregeno to the length of largedf
 nrow(noregeno) == nrow(largedf) - k # 1569/1531 - should return TRUE
+
+
+# remove known recaptures - only do this if you are ablsolutely sure you do not want to find new recapture events with this data
+leyte <- conleyte()
+recap <- leyte %>% tbl("clownfish") %>% filter(!is.na(capid)) %>% select(sample_id, capid) %>% collect()
+
+
+########################################################################
+# # TEST - make sure a list was generated
+k <- nrow(recap)
+k # 277
+
+
+noregeno$drop <- NA # place holder
+#run through all of the SampleIDs that are found more than once and keep the one with the most loci
+# for testing b <- 1
+for(i in 1:max(recap$capid)){
+  # recap_drop is the line number from noregeno that matches an ID in the regeno_match list
+  X <- recap$sample_id[recap$capid == recap$capid[i]]
+  recap_drop <- which(noregeno$sample_id %in% X)
+  # df is the data frame that holds all of the regenotyped versions of the sample, pulled from noregeno
+  df <- noregeno[recap_drop, ]  
+  # the row number of df with the largest number of loci (p-1 indicates the column)
+  keep <- which.max(df$numloci) 
+  # convert the df number to the row number of large df
+  c <- recap_drop[keep]
+  # convert the drop column of the row to keep to not na
+  df$drop[keep] <- "KEEP"
+  # convert the drop column of large df to not na
+  noregeno$drop[c] <- "KEEP"
+  
+  # find the row numbers of noregeno that need to be dropped
+  # test e <- 2
+  for(e in 1:nrow(df)){
+    if(is.na(df$drop[e])){
+      f <-recap_drop[e]
+      noregeno$drop[f] <- "DROP"
+    }
+  }
+}
+
+# convert all of the KEEPs to NAs 
+for(g in 1:nrow(noregeno)){
+  if(!is.na(noregeno$drop[g]) && noregeno$drop[g]=="KEEP"){
+    noregeno$drop[g] <- NA
+  }
+}
+
+# create a new data frame with none of the "DROP" rows
+noregeno <- noregeno[is.na(noregeno$drop),]
+# TEST - make sure no drop rows made it
+which(noregeno$drop == "DROP") # should return integer(0)
+# TEST - check to see if there are any regenos that were missed
+noregeno_match <- noregeno$sample_id[duplicated(noregeno$sample_id)]
+noregeno_match # should return character(0)  
+# If it doesn't, look deeper: noregeno[which(noregeno$SampleID == "APCL15_403"),], largedf[which(largedf$sample_ID == "APCL15_403"),]
+
+# remove the extra columns from noregeno
+noregeno [,c("extraction_ID")] <- NULL
+noregeno [,c("digest_ID")] <- NULL
+noregeno [,c("numloci")] <- NULL
+noregeno [,c("drop")] <- NULL
+
+# convert all the NA genotypes to 0000
+noregeno[is.na(noregeno)] = "0000"
+# TEST - make sure there are no NA's left
+which(is.na(noregeno)) # should return integer(0)
+
+# TEST - compare the length of noregeno to the length of largedf
+nrow(noregeno) == nrow(largedf) - k # 1569/1531 - should return TRUE
+
+
 
 # 4) Output genepop file --------------------------------------------------
 
