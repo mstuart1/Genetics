@@ -12,7 +12,6 @@ sampfromlig <- function(x){
   samp <- labor %>% tbl("extraction") %>% filter(extraction_id %in% extr_id$extraction_id) %>% select(extraction_id, sample_id) %>% collect() 
   samp_id <- left_join(extr_id, samp, by = "extraction_id")
   # remove unnecessary columns
-  samp_id$digest_id <- NULL
-  samp_id$extraction_id <- NULL
+  samp_id <- samp_id[ , c("ligation_id", "sample_id")]
   return(samp_id)
 }
