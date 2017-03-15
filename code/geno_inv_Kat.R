@@ -19,9 +19,12 @@ suppressMessages(library(dplyr))
 # Prepare the genepop -----------------------------------------------------
 
 ### add 'pop' to 3rd line of genepop file if it isn't already there ###
-genfile <- "data/seq17_03_58loci_kat.gen"
+genfile <- "data/94lociforkat.gen"
+# genfile <- "data/46lociforkat.gen"
+# genfile <- "data/seq17_03_58loci_kat.gen"
 # genfile <- "~/Documents/GradSchool/parentage/seq17_03_58loci.gen"
 gen <- readGenepop(genfile)
+nrow(gen) #1816
 ncol(gen)-2 # number of loci minus the pop, names
 
 # remove the pop column
@@ -35,10 +38,14 @@ for (i in 1:nrow(gen)){
   if (nchar(gen$names[i]) == 9){
     gen$names[i] <- substr(gen$names[i], 5, 9)
   }
+  if(nchar(gen$names[i]) == 15){
+      gen$names[i] <- paste("APCL_", substr(gen$names[i], 11, 15), sep = "")
+  }
+  if(nchar(gen$names[i]) == 10){
+      gen$names[i] <- substr(gen$names[i], 6, 10)
+  }
 }
-
-# strip genepop down to sample_id
-
+  
 # might have to move the underscore to the right in sample_ids - don't have to do this with your current genepop Katrina
 # dat$sample_id <- paste("APCL", substr(dat$sample_id,6,7), "_", substr(dat$sample_id, 8, 10), sep = "") #I didn't do this, because when I did underscores erased the year portion of my sample IDs, and that didn't seem right
 
@@ -46,12 +53,10 @@ for (i in 1:nrow(gen)){
 leyte <- conleyte()
 iss <- leyte %>% tbl("known_issues") %>% collect()
 gen <- gen %>% filter(!names %in% iss$Ligation_ID)
+nrow(gen) #1724
 
 # cleanup
-rm(iss, i, leyte)
-
-
-
+rm(iss, i, leyte, genfile)
 
 # Add sample ids ----------------------------------------------------------
 labor <- conlabor()
@@ -72,11 +77,7 @@ which(is.na(dat$sample_id)) # 1972- L3118 has no sample id, is a mixture of samp
 dat <- dat %>% filter(!is.na(dat$sample_id))
 
 # clean up
-rm (c5, gen, genfile, labor)
-
-
-
-
+rm (c5, gen, labor)
 
 # Remove regenotyped samples ----------------------------------------------
 
@@ -107,7 +108,7 @@ dups <- distinct(dups)
 
 # # TEST - make sure a list was generated
 k <- nrow(dups)
-k # 96
+k # 62
 
 dat$drop <- NA # place holder
 #run through all of the SampleIDs that are found more than once and keep the one with the most loci
