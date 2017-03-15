@@ -1,8 +1,10 @@
+###############################################
+## compare genotypes between pairs of individuals
+###############################################
 
 
-###############################################
-## compare genotypes at pairs of individuals
-###############################################
+# Set up working space ----------------------------------------------------
+
 # setwd("~/Documents/GradSchool/parentage")
 # source("~/Documents/GradSchool/parentage/readGenepop_space.R")
 source("code/readGenepop_space.R")
@@ -12,19 +14,43 @@ source("../Phil_code/conleyte.R")
 library(RCurl)
 suppressMessages(library(dplyr))
 
-# # read in list of troublesome samples to analyze instead of the totest list below
-# comparisons <- ____
 
+
+# Prepare the genepop -----------------------------------------------------
+
+### add 'pop' to 3rd line of genepop file if it isn't already there ###
 genfile <- "data/seq17_03_58loci_kat.gen"
 # genfile <- "~/Documents/GradSchool/parentage/seq17_03_58loci.gen"
 gen <- readGenepop(genfile)
+ncol(gen)-2 # number of loci minus the pop, names
 
-### add 'pop' to 3rd line of genepop file ###
-### the genepop uses ligation IDs, but this code uses sample ids, so need to make a genepop the uses sample ids or vice versa make this use ligation IDs. For simplicity, I will make a genepop with sample IDs
+# remove the pop column
+gen$pop <- NULL
 
+### our genepops have inconsistent naming schemes.  Make sure the names column contains only 5 character ligation ids ###
+for (i in 1:nrow(gen)){
+  if (nchar(gen$names[i]) == 8){
+  gen$names[i] <- substr(gen$names[i], 4, 8)
+  }
+  if (nchar(gen$names[i]) == 9){
+    gen$names[i] <- substr(gen$names[i], 5, 9)
+  }
+}
+
+# remove ligations with issues 
+leyte <- conleyte()
+iss <- leyte %>% tbl("known_issues") %>% collect()
+gen <- gen %>% filter(!names %in% iss$Ligation_ID)
+
+# cleanup
+rm(iss, i, leyte)
+
+
+
+
+# Add sample ids ----------------------------------------------------------
 labor <- conlabor()
 c5 <- sampfromlig(gen)
-
 
 # labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("/Users/kat1/Documents/GradSchool/parentage/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 # c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id)
@@ -35,18 +61,111 @@ c5 <- sampfromlig(gen)
 
 dat <- left_join(gen, c5, by=c(names = "ligation_id"))
 
-ncol(dat)-3 # number of loci minus the pop, names, and sample_id columns
+# make sure all of the Ligation ids have sample ids
+which(is.na(dat$sample_id)) # 1972- L3118 has no sample id, is a mixture of samples
 
-# remove pop column from dat, remove extraction ID
-dat$pop <- NULL
-dat$extraction_id <- NULL
+dat <- dat %>% filter(!is.na(dat$sample_id))
 
 # clean up
 rm (c5, gen, genfile, labor)
 
-# remove repeat individuals
-regeno <- dat[duplicated(dat$sample_id), c("sample_id", "names")]
-noregeno <- anti_join(dat, regeno, by = "sample_id")
+
+
+
+
+# Remove regenotyped samples ----------------------------------------------
+
+# convert 0000 to NA in the genepop data
+dat[dat == "0000"] = NA
+
+# # TEST - make sure there are no "0000" left
+# which(dat == "0000") # should return integer(0)
+
+# count the number of loci per individual (have to use for loop)
+for(i in 1:nrow(dat)){
+  dat$numloci[i] <- sum(!is.na(dat[i,]))
+}
+
+### WAIT ###
+
+# # TEST - make sure all of the numloci were populated ----------------------
+# which(is.na(dat$numloci)) # should return integer(0)
+
+# make a list of all of the sample ID's that have duplicates (some on this list occur more than once because there are 3 regenos)
+# this line of code keeps any sample_id that comes up as TRUE for being duplicated
+regenod <- dat %>%
+  filter(duplicated(dat$sample_id)) %>%
+  select(sample_id)
+
+# # TEST - make sure a list was generated
+k <- nrow(regenod)
+k # 189
+
+
+dat$drop <- NA # place holder
+#run through all of the SampleIDs that are found more than once and keep the one with the most loci
+# for testing b <- 1
+for(b in 1:k){
+  # regeno_drop is the line number from dat that matches an ID in the regeno_match list
+  regeno_drop <- which(dat$sample_id == regenod[b,]) 
+  # df is the data frame that holds all of the regenotyped versions of the sample, pulled from dat
+  df <- dat[regeno_drop, ]  
+  # the row number of df with the largest number of loci (p-1 indicates the column)
+  keep <- which.max(df$numloci) 
+  # convert the df number to the row number of large df
+  c <- regeno_drop[keep]
+  # convert the drop column of the row to keep to not na
+  df$drop[keep] <- "KEEP"
+  # convert the drop column of large df to not na
+  dat$drop[c] <- "KEEP"
+  
+  # find the row numbers of dat that need to be dropped
+  # test e <- 2
+  for(e in 1:nrow(df)){
+    if(is.na(df$drop[e])){
+      f <-regeno_drop[e]
+      dat$drop[f] <- "DROP"
+    }
+  }
+}
+
+# TEST - make sure all of the regenos were dropped ----------------------------
+a <- length(which(dat$drop == "KEEP")) # num keeps
+b <- length(which(duplicated(regenod) == TRUE)) # num multiple regenos
+a + b == nrow(regenod) # should return TRUE
+length(which(dat$drop == "DROP")) == nrow(regenod) # should be TRUE
+
+
+# convert all of the KEEPs to NAs 
+for(g in 1:nrow(dat)){
+  if(!is.na(dat$drop[g]) && dat$drop[g]=="KEEP"){
+    dat$drop[g] <- NA
+  }
+}
+
+# create a new data frame with none of the "DROP" rows
+noregeno <- dat[is.na(dat$drop),]
+# TEST - make sure no drop rows made it
+which(noregeno$drop == "DROP") # should return integer(0)
+# TEST - check to see if there are any regenos that were missed
+noregeno_match <- noregeno$sample_id[duplicated(noregeno$sample_id)]
+noregeno_match # should return character(0)  
+# If it doesn't, look deeper: noregeno[which(noregeno$SampleID == "APCL15_403"),], dat[which(dat$sample_ID == "APCL15_403"),]
+
+# remove the extra columns from noregeno
+noregeno [,c("extraction_ID")] <- NULL
+noregeno [,c("digest_ID")] <- NULL
+noregeno [,c("numloci")] <- NULL
+noregeno [,c("drop")] <- NULL
+
+# convert all the NA genotypes to 0000
+noregeno[is.na(noregeno)] = "0000"
+# TEST - make sure there are no NA's left
+which(is.na(noregeno)) # should return integer(0)
+
+# TEST - compare the length of noregeno to the length of dat
+nrow(noregeno) == nrow(dat) - k # 1569/1531 - should return TRUE
+
 
 # get list of recaptured individuals --------------------------------------
 
