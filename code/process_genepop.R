@@ -2,12 +2,17 @@
 
 # Set up working directory ---------------------------------------------
 source("code/readGenepop_space.R")
+source("code/sampforlig.R")
+source("~/Documents/Philippines/Phil_code/conleyte.R")
+suppressMessages(library(dplyr))
 
 
-# 1) Strip down to Ligation ID  - double check genepop to make sur --------
+
+
+# 1) Read the genepop  - double check genepop to make sur --------
 
 # locate the genepop file and read as data frame
-genfile <- "data/809_seq17_03.gen"
+genfile <- "data/seq0217.gen"
 genedf <- readGenepop(genfile)
 
 ### WAIT ###
@@ -19,37 +24,35 @@ genedf$pop <- NULL
 # names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
 # nrow(genedf) #2111
 
-# Strip out the ligation ID
-# first have to get all of the ligation ids to be the same length
-for (i in 1:nrow(genedf)){
-  if(nchar(genedf$names[i]) == 15){
+# # Strip out the ligation ID
+# # first have to get all of the ligation ids to be the same length
+  for (i in 1:nrow(genedf)){
+    if(nchar(genedf$names[i]) == 15){
     genedf$names[i] <- paste("APCL_", substr(genedf$names[i], 11, 15), sep = "")
   }
-  if(nchar(genedf$names[i]) == 10){
+    if(nchar(genedf$names[i]) == 10){
     genedf$names[i] <- substr(genedf$names[i], 6, 10)
+    }
+    if(nchar(genedf$names[i]) == 9){
+      genedf$names[i] <- substr(genedf$names[i], 5, 9)
+    }
+    if(nchar(genedf$names[i]) == 8){
+      genedf$names[i] <- substr(genedf$names[i], 4, 8)
+    }
   }
-}
 
 
-# Connect to database Labor  ----------------------------------------------
-# open the laboratory database to retrieve sample info
-suppressMessages(library(dplyr))
-labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+
+# TEST are any names still longer than 5 characters?
+# which(nchar(genedf$names) > 5) # should be integer(0)
 
 # Add sample IDs ----------------------------------------------------------
-suppressWarnings(c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id))
-suppressWarnings(c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id))
-c3 <- left_join(c2, c1, by = "extraction_id")
-suppressWarnings(c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id))
-c5 <- left_join(c4, c3, by = "digest_id") %>% collect()
-c5 <- subset(c5, !is.na("sample_id"), select = c(ligation_id, sample_id)) 
-
-# cleanup
-rm(c1, c2, c3, c4)
+c5 <- sampforlig(genedf$names)
 
 # Merge the two dataframes so that lig IDs match up -----------------------
 
 largedf <- left_join(genedf, c5, by = c("names" = "ligation_id"), copy = T)
+rm(c5)
 
 # # TEST - check the last 2 column names and that the number of rows hasn't changed
 # p <- ncol(largedf)
@@ -58,34 +61,34 @@ largedf <- left_join(genedf, c5, by = c("names" = "ligation_id"), copy = T)
 # # look for missing names
 # setdiff(genedf$names, largedf$names) # should be character(0)
 
+
+
+
+# 1431 1432 1433 1434 1435 1436 1437 1438 1439 1440 1441 1442 1443 1444 1445 1972
+
+
+
 # Remove samples with known issues ----------------------------------------
 
 # to remove samples with known issues, pull the data from the known issues database
 
-# Connect to database Leyte -----------------------------------------------------
+
 # open the laboratory database to retrieve sample info
 # suppressMessages(library(dplyr))
-leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("~/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+leyte <- conleyte()
 
-# Read known issues table into R ------------------------------------------
 iss <- leyte %>% tbl("known_issues") %>% collect()
+rm(leyte)
 
-# Remove ligation IDs with issues -----------------------------------------
+# remove issues from largedf
+largedf <- largedf %>%
+  filter(!names %in% iss$Ligation_ID)
+rm(iss, genedf)
 
-# create a new table with only the issue samples, keep only lig and issue
-iss_lig <- largedf %>%
-  filter(names %in% iss$Ligation_ID) %>%
-  select(names) %>%
-  mutate(issue = 1)
+# make sure all of the Ligation ids have sample ids
+which(is.na(largedf$sample_id)) # 1972- L3118 has no sample id, is a mixture of samples
 
-m <- nrow(iss_lig) # for testing later
-
-# merge the issue column into the original table
-largedf <- left_join(largedf, iss_lig, by = "names")
-
-# remove all samples with issue = 1
-largedf <- largedf[is.na(largedf$issue), ]
-largedf$issue <- NULL
+largedf <- largedf %>% filter(!is.na(largedf$sample_id))
 
 # # TEST - make sure no more match the list
 # j <- largedf %>%
@@ -94,8 +97,6 @@ largedf$issue <- NULL
   
 
 # Remove regenotyped samples ----------------------------------------------
-
-# Calculate the number of genotyped loci for each sample ----------------
 
 # convert 0000 to NA in the genepop data
 largedf[largedf == "0000"] = NA
@@ -177,7 +178,6 @@ noregeno_match # should return character(0)
 # remove the extra columns from noregeno
 noregeno [,c("extraction_ID")] <- NULL
 noregeno [,c("digest_ID")] <- NULL
-noregeno [,c("sample_id")] <- NULL
 noregeno [,c("numloci")] <- NULL
 noregeno [,c("drop")] <- NULL
 
@@ -188,6 +188,78 @@ which(is.na(noregeno)) # should return integer(0)
 
 # TEST - compare the length of noregeno to the length of largedf
 nrow(noregeno) == nrow(largedf) - k # 1569/1531 - should return TRUE
+
+
+# remove known recaptures - only do this if you are ablsolutely sure you do not want to find new recapture events with this data
+leyte <- conleyte()
+recap <- leyte %>% tbl("clownfish") %>% filter(!is.na(capid)) %>% select(sample_id, capid) %>% collect()
+
+
+########################################################################
+# # TEST - make sure a list was generated
+k <- nrow(recap)
+k # 277
+
+
+noregeno$drop <- NA # place holder
+#run through all of the SampleIDs that are found more than once and keep the one with the most loci
+# for testing b <- 1
+for(i in 1:max(recap$capid)){
+  # recap_drop is the line number from noregeno that matches an ID in the regeno_match list
+  X <- recap$sample_id[recap$capid == recap$capid[i]]
+  recap_drop <- which(noregeno$sample_id %in% X)
+  # df is the data frame that holds all of the regenotyped versions of the sample, pulled from noregeno
+  df <- noregeno[recap_drop, ]  
+  # the row number of df with the largest number of loci (p-1 indicates the column)
+  keep <- which.max(df$numloci) 
+  # convert the df number to the row number of large df
+  c <- recap_drop[keep]
+  # convert the drop column of the row to keep to not na
+  df$drop[keep] <- "KEEP"
+  # convert the drop column of large df to not na
+  noregeno$drop[c] <- "KEEP"
+  
+  # find the row numbers of noregeno that need to be dropped
+  # test e <- 2
+  for(e in 1:nrow(df)){
+    if(is.na(df$drop[e])){
+      f <-recap_drop[e]
+      noregeno$drop[f] <- "DROP"
+    }
+  }
+}
+
+# convert all of the KEEPs to NAs 
+for(g in 1:nrow(noregeno)){
+  if(!is.na(noregeno$drop[g]) && noregeno$drop[g]=="KEEP"){
+    noregeno$drop[g] <- NA
+  }
+}
+
+# create a new data frame with none of the "DROP" rows
+noregeno <- noregeno[is.na(noregeno$drop),]
+# TEST - make sure no drop rows made it
+which(noregeno$drop == "DROP") # should return integer(0)
+# TEST - check to see if there are any regenos that were missed
+noregeno_match <- noregeno$sample_id[duplicated(noregeno$sample_id)]
+noregeno_match # should return character(0)  
+# If it doesn't, look deeper: noregeno[which(noregeno$SampleID == "APCL15_403"),], largedf[which(largedf$sample_ID == "APCL15_403"),]
+
+# remove the extra columns from noregeno
+noregeno [,c("extraction_ID")] <- NULL
+noregeno [,c("digest_ID")] <- NULL
+noregeno [,c("numloci")] <- NULL
+noregeno [,c("drop")] <- NULL
+
+# convert all the NA genotypes to 0000
+noregeno[is.na(noregeno)] = "0000"
+# TEST - make sure there are no NA's left
+which(is.na(noregeno)) # should return integer(0)
+
+# TEST - compare the length of noregeno to the length of largedf
+nrow(noregeno) == nrow(largedf) - k # 1569/1531 - should return TRUE
+
+
 
 # 4) Output genepop file --------------------------------------------------
 
