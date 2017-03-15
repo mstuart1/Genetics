@@ -133,14 +133,8 @@ for(b in 1:k){
   regeno_drop <- which(largedf$sample_id == regenod[b,]) 
   # df is the data frame that holds all of the regenotyped versions of the sample, pulled from largedf
   df <- largedf[regeno_drop, ]  
-	# the row number of df with the largest number of loci (p-1 indicates the column)
-	keep <- which.max(df$numloci) 
-	# convert the df number to the row number of large df
-	c <- regeno_drop[keep]
-	# convert the drop column of the row to keep to not na
-	df$drop[keep] <- "KEEP"
 	# convert the drop column of large df to not na
-	largedf$drop[c] <- "KEEP"
+	largedf$drop[regeno_drop[which.max(df$numloci)]] <- "KEEP"
 	
 	# find the row numbers of largedf that need to be dropped
 	# test e <- 2
