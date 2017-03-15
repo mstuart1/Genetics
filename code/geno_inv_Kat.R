@@ -44,6 +44,10 @@ dat$extraction_id <- NULL
 # clean up
 rm (c5, gen, genfile, labor)
 
+# remove repeat individuals
+regeno <- dat[duplicated(dat$sample_id), c("sample_id", "names")]
+noregeno <- anti_join(dat, regeno, by = "sample_id")
+
 # get list of recaptured individuals --------------------------------------
 
 leyte <- conleyte()
@@ -66,9 +70,15 @@ for (i in 1:nrow(recaps)){
 # change the column names to fit the code below
 totest <- wide
 names(totest) <- c("ind1","capid","ind2","ind3")
+totest <- distinct(totest)
 
 # cleanup
 rm(recaps, wide, X, i, leyte)
+
+# remove pairs of individuals who are not in the genepop
+
+
+
 
 # strip genepop down to sample_id
 
@@ -76,21 +86,24 @@ rm(recaps, wide, X, i, leyte)
 # dat$sample_id <- paste("APCL", substr(dat$sample_id,6,7), "_", substr(dat$sample_id, 8, 10), sep = "") #I didn't do this, because when I did underscores erased the year portion of my sample IDs, and that didn't seem right
 
 	# to hold the results
-a = rep(NA, nrow(totest))
-out = data.frame(indivs = a, matches=a, mismatches=a, perc=a, hetmatch=a, hetmism=a, perchet=a)
-
+a <- rep(NA, nrow(totest))
+out <- data.frame(indivs = a, matches=a, mismatches=a, perc=a, hetmatch=a, hetmism=a, perchet=a)
+X <- out[1, ]
+out <- X
 for(i in 1:nrow(totest)){
 	datrow <- which(as.character(dat$sample_id) %in% c(as.character(totest$ind1[i]), as.character(totest$ind2[i])))
-	out$indivs[i] <- paste(dat$sample_id[datrow], collapse = ', ')
+	# make sure both individuals are in the genepop
+	if (length(datrow) > 1){
+	X$indivs <- paste(dat$sample_id[datrow], collapse = ', ')
 
 	genosone <- dat[datrow[1], 3:ncol(dat)]#works
 	genostwo <- dat[datrow[2], 3:ncol(dat)]#works
 	matches <- genosone == genostwo # where the two genotypes match or not #works
 	matches[genosone == '0000' | genostwo == '0000'] <- NA # remove missing data from calculations #works
 
-	out$matches[i] <- sum(matches, na.rm=TRUE) # number of matching loci
-	out$mismatches[i] <- sum(!matches, na.rm=TRUE) # number of mismatching loci  
-	out$perc[i] <- 100*signif(sum(!matches, na.rm=TRUE)/(sum(matches, na.rm=TRUE) + sum(!matches, na.rm=TRUE)),2) # proportion mismatching
+	X$matches <- sum(matches, na.rm=TRUE) # number of matching loci
+	X$mismatches <- sum(!matches, na.rm=TRUE) # number of mismatching loci  
+	X$perc <- 100*signif(sum(!matches, na.rm=TRUE)/(sum(matches, na.rm=TRUE) + sum(!matches, na.rm=TRUE)),2) # proportion mismatching
 
 
 	alone1 <- substr(genosone, 1,2) # first allele in individual one
@@ -101,10 +114,11 @@ for(i in 1:nrow(totest)){
 	hets <- (alone1 != alone2) | (altwo1 != altwo2)
 	hets[alone1 == '00' | alone2 == '00' | altwo1 == '00' | altwo2 == '00'] <- NA
 
-	out$hetmatch[i] <- sum(hets & matches, na.rm=TRUE) # number of matching heterozygote loci
-	out$hetmism[i] <- sum(hets & !matches, na.rm=TRUE) # number of mismatching loci where at least one indiv is het
-	out$perchet[i] <- 100*signif(sum(hets & !matches, na.rm=TRUE)/(sum(hets & !matches, na.rm=TRUE)+sum(hets & matches, na.rm=TRUE)),2)
-
+	X$hetmatch <- sum(hets & matches, na.rm=TRUE) # number of matching heterozygote loci
+	X$hetmism <- sum(hets & !matches, na.rm=TRUE) # number of mismatching loci where at least one indiv is het
+	X$perchet <- 100*signif(sum(hets & !matches, na.rm=TRUE)/(sum(hets & !matches, na.rm=TRUE)+sum(hets & matches, na.rm=TRUE)),2)
+	out <- rbind(out, X)
+}
 }
 
 out
