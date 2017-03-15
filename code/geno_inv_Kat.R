@@ -88,53 +88,49 @@ for(i in 1:nrow(dat)){
 
 ### WAIT ###
 
-# # TEST - make sure all of the numloci were populated ----------------------
+# # TEST - make sure all of the numloci were populated
 # which(is.na(dat$numloci)) # should return integer(0)
 
 # make a list of all of the sample ID's that have duplicates (some on this list occur more than once because there are 3 regenos)
 # this line of code keeps any sample_id that comes up as TRUE for being duplicated
-regenod <- dat %>%
+dups <- dat %>%
   filter(duplicated(dat$sample_id)) %>%
   select(sample_id)
 
-# # TEST - make sure a list was generated
-k <- nrow(regenod)
-k # 189
+# make sure there is only one copy of each sample id
+dups <- distinct(dups)
 
+# # TEST - make sure a list was generated
+k <- nrow(dups)
+k # 96
 
 dat$drop <- NA # place holder
 #run through all of the SampleIDs that are found more than once and keep the one with the most loci
 # for testing b <- 1
-for(b in 1:k){
+for(j in 1:nrow(dups)){
   # regeno_drop is the line number from dat that matches an ID in the regeno_match list
-  regeno_drop <- which(dat$sample_id == regenod[b,]) 
+  regeno_drop <- which(dat$sample_id == dups[j,]) 
   # df is the data frame that holds all of the regenotyped versions of the sample, pulled from dat
-  df <- dat[regeno_drop, ]  
-  # the row number of df with the largest number of loci (p-1 indicates the column)
-  keep <- which.max(df$numloci) 
-  # convert the df number to the row number of large df
-  c <- regeno_drop[keep]
-  # convert the drop column of the row to keep to not na
-  df$drop[keep] <- "KEEP"
+  df <- dat[regeno_drop, ]
+  # update the drop column so that the drop code below works
+  df$drop[which.max(df$numloci)] <- "KEEP"
   # convert the drop column of large df to not na
-  dat$drop[c] <- "KEEP"
+  dat$drop[regeno_drop[which.max(df$numloci)]] <- "KEEP"
+  
   
   # find the row numbers of dat that need to be dropped
   # test e <- 2
   for(e in 1:nrow(df)){
     if(is.na(df$drop[e])){
-      f <-regeno_drop[e]
-      dat$drop[f] <- "DROP"
+      dat$drop[regeno_drop[e]] <- "DROP"
     }
   }
 }
 
+
 # TEST - make sure all of the regenos were dropped ----------------------------
 a <- length(which(dat$drop == "KEEP")) # num keeps
-b <- length(which(duplicated(regenod) == TRUE)) # num multiple regenos
-a + b == nrow(regenod) # should return TRUE
-length(which(dat$drop == "DROP")) == nrow(regenod) # should be TRUE
-
+a == nrow(dups) # should return TRUE
 
 # convert all of the KEEPs to NAs 
 for(g in 1:nrow(dat)){
@@ -144,28 +140,24 @@ for(g in 1:nrow(dat)){
 }
 
 # create a new data frame with none of the "DROP" rows
-noregeno <- dat[is.na(dat$drop),]
+dat <- dat[is.na(dat$drop),]
 # TEST - make sure no drop rows made it
-which(noregeno$drop == "DROP") # should return integer(0)
+which(dat$drop == "DROP") # should return integer(0)
 # TEST - check to see if there are any regenos that were missed
-noregeno_match <- noregeno$sample_id[duplicated(noregeno$sample_id)]
-noregeno_match # should return character(0)  
+dat$sample_id[duplicated(dat$sample_id)]
+# should return character(0)  
 # If it doesn't, look deeper: noregeno[which(noregeno$SampleID == "APCL15_403"),], dat[which(dat$sample_ID == "APCL15_403"),]
 
 # remove the extra columns from noregeno
-noregeno [,c("extraction_ID")] <- NULL
-noregeno [,c("digest_ID")] <- NULL
-noregeno [,c("numloci")] <- NULL
-noregeno [,c("drop")] <- NULL
+dat[,c("drop", "numloci")] <- NULL
 
 # convert all the NA genotypes to 0000
-noregeno[is.na(noregeno)] = "0000"
+dat[is.na(dat)] = "0000"
 # TEST - make sure there are no NA's left
-which(is.na(noregeno)) # should return integer(0)
+which(is.na(dat)) # should return integer(0)
 
-# TEST - compare the length of noregeno to the length of dat
-nrow(noregeno) == nrow(dat) - k # 1569/1531 - should return TRUE
-
+# cleanup
+rm(df, dups, a, b, e, g, i, j, k, noregeno_match, regeno_drop)
 
 # get list of recaptured individuals --------------------------------------
 
