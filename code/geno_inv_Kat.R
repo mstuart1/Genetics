@@ -37,6 +37,11 @@ for (i in 1:nrow(gen)){
   }
 }
 
+# strip genepop down to sample_id
+
+# might have to move the underscore to the right in sample_ids - don't have to do this with your current genepop Katrina
+# dat$sample_id <- paste("APCL", substr(dat$sample_id,6,7), "_", substr(dat$sample_id, 8, 10), sep = "") #I didn't do this, because when I did underscores erased the year portion of my sample IDs, and that didn't seem right
+
 # remove ligations with issues 
 leyte <- conleyte()
 iss <- leyte %>% tbl("known_issues") %>% collect()
@@ -127,8 +132,7 @@ for(j in 1:nrow(dups)){
   }
 }
 
-
-# TEST - make sure all of the regenos were dropped ----------------------------
+# TEST - make sure all of the regenos were dropped 
 a <- length(which(dat$drop == "KEEP")) # num keeps
 a == nrow(dups) # should return TRUE
 
@@ -157,7 +161,7 @@ dat[is.na(dat)] = "0000"
 which(is.na(dat)) # should return integer(0)
 
 # cleanup
-rm(df, dups, a, b, e, g, i, j, k, noregeno_match, regeno_drop)
+rm(df, dups, a, e, g, i, j, k, regeno_drop)
 
 # get list of recaptured individuals --------------------------------------
 
@@ -186,22 +190,17 @@ totest <- distinct(totest)
 # cleanup
 rm(recaps, wide, X, i, leyte)
 
-# remove pairs of individuals who are not in the genepop
-
-
-
-
-# strip genepop down to sample_id
-
-# might have to move the underscore to the right in sample_ids - don't have to do this with your current genepop Katrina
-# dat$sample_id <- paste("APCL", substr(dat$sample_id,6,7), "_", substr(dat$sample_id, 8, 10), sep = "") #I didn't do this, because when I did underscores erased the year portion of my sample IDs, and that didn't seem right
+# compare genotypes -------------------------------------------------------
 
 	# to hold the results
 a <- rep(NA, nrow(totest))
-out <- data.frame(indivs = a, matches=a, mismatches=a, perc=a, hetmatch=a, hetmism=a, perchet=a)
-X <- out[1, ]
-out <- X
+out <- data.frame(indivs = NA, matches=NA, mismatches=NA, perc=NA, hetmatch=NA, hetmism=NA, perchet=NA)
+X <- out
+
+
 for(i in 1:nrow(totest)){
+  # remove pairs of individuals who are not in the genepop
+  if (is.na(totest$ind3[i]) & totest$ind1[i] %in% dat$sample_id & totest$ind2[i] %in% dat$sample_id){
 	datrow <- which(as.character(dat$sample_id) %in% c(as.character(totest$ind1[i]), as.character(totest$ind2[i])))
 	# make sure both individuals are in the genepop
 	if (length(datrow) > 1){
@@ -229,22 +228,25 @@ for(i in 1:nrow(totest)){
 	X$hetmism <- sum(hets & !matches, na.rm=TRUE) # number of mismatching loci where at least one indiv is het
 	X$perchet <- 100*signif(sum(hets & !matches, na.rm=TRUE)/(sum(hets & !matches, na.rm=TRUE)+sum(hets & matches, na.rm=TRUE)),2)
 	out <- rbind(out, X)
+	}
 }
 }
+out <- out[!is.na(out$indivs), ]
 
-out
+mean(out$perc) # average mismatch percentage
 
-write.csv(out, file="regenotyped_mismatch.csv")
 
-onematch <- (alone1 == altwo1 & alone2 != altwo2) | (alone1 == altwo2 & alone2 != altwo1) | (alone2 == altwo1 & alone1 != altwo2) | (alone2 == altwo2 & alone1 != altwo1) # does one allele match but not the other?
-homvhet <- ((alone1 == altwo1 & alone2 != altwo2) | (alone1 == altwo2 & alone2 != altwo1) | (alone2 == altwo1 & alone1 != altwo2) | (alone2 == altwo2 & alone1 != altwo1)) & (alone1 == alone2 | altwo1 == altwo2) # a onematch where one of the genotypes is a homozygote (hom vs. het mismatch)
-sum(onematch)
-sum(homvhet) # the same, if all one allele matches are hom vs het mismatches
-sum(!onematch)
+write.csv(out, file = paste(Sys.Date(), "regenotyped_mismatch.csv", sep = ""))
 
-rbind(genosone[which(!matches)], genostwo[which(!matches)]) # visually inspect
-rbind(genosone[which(!matches)][onematch], genostwo[which(!matches)][onematch]) # visually inspect cases where they match on one allele
-rbind(genosone[which(!matches)][!onematch], genostwo[which(!matches)][!onematch]) # visually inspect where no alleles match
+# onematch <- (alone1 == altwo1 & alone2 != altwo2) | (alone1 == altwo2 & alone2 != altwo1) | (alone2 == altwo1 & alone1 != altwo2) | (alone2 == altwo2 & alone1 != altwo1) # does one allele match but not the other?
+# homvhet <- ((alone1 == altwo1 & alone2 != altwo2) | (alone1 == altwo2 & alone2 != altwo1) | (alone2 == altwo1 & alone1 != altwo2) | (alone2 == altwo2 & alone1 != altwo1)) & (alone1 == alone2 | altwo1 == altwo2) # a onematch where one of the genotypes is a homozygote (hom vs. het mismatch)
+# sum(onematch)
+# sum(homvhet) # the same, if all one allele matches are hom vs het mismatches
+# sum(!onematch)
+# 
+# rbind(genosone[which(!matches)], genostwo[which(!matches)]) # visually inspect
+# rbind(genosone[which(!matches)][onematch], genostwo[which(!matches)][onematch]) # visually inspect cases where they match on one allele
+# rbind(genosone[which(!matches)][!onematch], genostwo[which(!matches)][!onematch]) # visually inspect where no alleles match
 
 
 
