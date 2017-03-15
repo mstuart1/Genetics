@@ -3,43 +3,55 @@
 ###############################################
 ## compare genotypes at pairs of individuals
 ###############################################
-setwd("~/Documents/GradSchool/parentage")
-source("~/Documents/GradSchool/parentage/readGenepop_space.R")
+# setwd("~/Documents/GradSchool/parentage")
+# source("~/Documents/GradSchool/parentage/readGenepop_space.R")
+source("code/readGenepop_space.R")
+source("code/sampfromlig.R")
+source("../../myRcode/Laboratory/R/conlabor.R")
+source("../Phil_code/conleyte.R")
 library(RCurl)
 suppressMessages(library(dplyr))
 
 # # read in list of troublesome samples to analyze instead of the totest list below
 # comparisons <- ____
 
-genfile = "~/Documents/GradSchool/parentage/seq17_03_58loci.gen"
-gen = readGenepop(genfile)
+genfile <- "data/seq17_03_58loci_kat.gen"
+# genfile = "~/Documents/GradSchool/parentage/seq17_03_58loci.gen"
+gen <- readGenepop(genfile)
 
 ### add 'pop' to 3rd line of genepop file ###
 ### the genepop uses ligation IDs, but this code uses sample ids, so need to make a genepop the uses sample ids or vice versa make this use ligation IDs. For simplicity, I will make a genepop with sample IDs
 
-labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("/Users/kat1/Documents/GradSchool/parentage/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
-c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id)
-c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id)
-c3 <- left_join(c2, c1, by = "extraction_id")
-c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id)
-c5 <- collect(left_join(c4, c3, by = "digest_id"))
+labor <- conlabor()
+c5 <- sampfromlig(gen)
+
+
+# labor <- src_mysql(dbname = "Laboratory", default.file = path.expand("/Users/kat1/Documents/GradSchool/parentage/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+# c1 <- labor %>% tbl("extraction") %>% select(extraction_id, sample_id)
+# c2 <- labor %>% tbl("digest") %>% select(digest_id, extraction_id)
+# c3 <- left_join(c2, c1, by = "extraction_id")
+# c4 <- labor %>% tbl("ligation") %>% select(ligation_id, digest_id)
+# c5 <- collect(left_join(c4, c3, by = "digest_id"))
 
 dat <- left_join(gen, c5, by=c(names = "ligation_id"))
 
-
-ncol(dat)-2 # number of loci
+ncol(dat)-3 # number of loci minus the pop, names, and sample_id columns
 
 # remove pop column from dat, remove extraction ID
 dat$pop <- NULL
 dat$extraction_id <- NULL
-# # get list of recaptured individuals 
 
-# leyte <- conleyte()
-leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("/Users/kat1/Documents/GradSchool/parentage/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
+# clean up
+rm (c5, gen, genfile, labor)
+
+# get list of recaptured individuals --------------------------------------
+
+leyte <- conleyte()
+# leyte <- src_mysql(dbname = "Leyte", default.file = path.expand("/Users/kat1/Documents/GradSchool/parentage/myconfig.cnf"), port = 3306, create = F, host = NULL, user = NULL, password = NULL)
 
 recaps <- leyte %>% tbl("clownfish") %>% filter(!is.na(capid)) %>% select(sample_id, capid) %>% collect() 
 
-# widen the data
+# widen the data (for each capid, include all fish in one row)
 wide <- data.frame()
 for (i in 1:nrow(recaps)){
   X <- recaps[recaps$capid == recaps$capid[i], ]
@@ -54,6 +66,9 @@ for (i in 1:nrow(recaps)){
 # change the column names to fit the code below
 totest <- wide
 names(totest) <- c("ind1","capid","ind2","ind3")
+
+# cleanup
+rm(recaps, wide, X, i, leyte)
 
 # strip genepop down to sample_id
 
