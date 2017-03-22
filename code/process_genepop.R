@@ -26,6 +26,9 @@ genedf <- select(genedf, -pop)
 
 # # Strip out the ligation ID
 # # first have to get all of the ligation ids to be the same length
+# are any of the ligation ids longer than they should be?
+genedf %>% filter(nchar(names) > 5) %>% count()
+
   for (i in 1:nrow(genedf)){
     if(nchar(genedf$names[i]) == 15){
     genedf$names[i] <- paste("APCL_", substr(genedf$names[i], 11, 15), sep = "")
