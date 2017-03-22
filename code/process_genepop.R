@@ -18,7 +18,7 @@ genedf <- readGenepop(genfile)
 ### WAIT ###
 
 # remove the pop column from the data file
-genedf$pop <- NULL
+genedf <- select(genedf, -pop)
 
 # # TEST - make sure the first 2 columns are names and a contig and get number of rows
 # names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
