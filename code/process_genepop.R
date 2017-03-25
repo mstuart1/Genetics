@@ -4,7 +4,7 @@
 source("code/readGenepop_space.R")
 source("code/sampforlig.R")
 source("~/Documents/Philippines/Phil_code/conleyte.R")
-suppressMessages(library(dplyr))
+library(tidyverse)
 
 
 
@@ -18,7 +18,7 @@ genedf <- readGenepop(genfile)
 ### WAIT ###
 
 # remove the pop column from the data file
-genedf$pop <- NULL
+genedf <- select(genedf, -pop)
 
 # # TEST - make sure the first 2 columns are names and a contig and get number of rows
 # names(genedf[,1:2]) # [1] "names" "dDocent_Contig_107_30"
@@ -26,6 +26,9 @@ genedf$pop <- NULL
 
 # # Strip out the ligation ID
 # # first have to get all of the ligation ids to be the same length
+# are any of the ligation ids longer than they should be?
+genedf %>% filter(nchar(names) > 5) %>% count()
+
   for (i in 1:nrow(genedf)){
     if(nchar(genedf$names[i]) == 15){
     genedf$names[i] <- paste("APCL_", substr(genedf$names[i], 11, 15), sep = "")
